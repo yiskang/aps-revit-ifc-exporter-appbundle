@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ApplicationPackage Name="RevitDesignAutomation" Description="Revit IFC Exporter" Author="forge.help@autodesk.com">
+  <CompanyDetails Name="Autodesk, Inc" Url="http://learnforge.autodesk.io" Email="forge.help@autodesk.com"/>
+  <Components Description="Export Revit RVT to IFC">
+    <RuntimeRequirements SeriesMax="R2021" SeriesMin="R2021" Platform="Revit" OS="Win64"/>
+    <ComponentEntry LoadOnRevitStartup="True" LoadOnCommandInvocation="False" AppDescription="Export Revit RVT to IFC" ModuleName="./Contents/RevitIfcExportor.addin" Version="1.0.0" AppName="RevitIfcExportor"/>
+  </Components>
+</ApplicationPackage>
