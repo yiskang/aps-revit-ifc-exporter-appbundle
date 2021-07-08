@@ -13,13 +13,74 @@
 
 This sample demonstrates how to implement Revit exporter that supports IFC export options of [Autodesk Revit IFC](https://github.com/Autodesk/revit-ifc)
 
-# Web App Setup
+# Development Setup
 
 ## Prerequisites
 
 1. **Forge Account**: Learn how to create a Forge Account, activate subscription and create an app at [this tutorial](http://learnforge.autodesk.io/#/account/). 
 2. **Visual Studio 2019** (Windows).
 3. **Revit 2021**: required to compile changes into the plugin
+
+## Design Automation Setup
+
+### Activity example
+
+```json
+{
+    "id": "RevitIfcExportorActivity",
+    "commandLine": [
+        "$(engine.path)\\\\revitcoreconsole.exe /i \"$(args[inputFile].path)\" /al \"$(appbundles[RevitIfcExportor].path)\""
+    ],
+    "parameters": {
+        "inputFile": {
+            "verb": "get",
+            "description": "Input Revit File",
+            "required": true,
+            "localName": "$(inputFile)"
+        },
+        "inputJson": {
+            "verb": "get",
+            "description": "input Json parameters",
+            "localName": "params.json"
+        },
+        "outputIFC": {
+            "zip": true,
+            "verb": "put",
+            "description": "Exported IFC files",
+            "localName": "ifc"
+        }
+    },
+    "engine": "Autodesk.Revit+2021",
+    "appbundles": [
+        "Autodesk.RevitIfcExportor+dev"
+    ],
+    "description": "Activity of Revit IFC Exporter with Autodesk IFC export options support"
+}
+```
+
+### Workitem example
+
+```json
+{
+    "activityId": "Autodesk.RevitIfcExportorActivity+dev",
+    "arguments": {
+        "inputFile": {
+            "verb": "get",
+            "url": "https://developer.api.autodesk.com/oss/v2/apptestbucket/9d3be632-a4fc-457d-bc5d-9e75cefc54b7?region=US"
+        },
+        "inputJson": {
+            "url": "data:application/json,{\"exportSettingName\":\"IFC2x3 Coordination View 2.0\"}"
+        },
+        "outputIFC": {
+            "verb": "put",
+            "url": "https://developer.api.autodesk.com/oss/v2/apptestbucket/9d3be632-a4fc-457d-bc5d-9e75cefc54b7?region=US",
+            "headers": {
+                "Content-Type": "application/octet-stream"
+            }
+        }
+    }
+}
+```
 
 ## License
 
