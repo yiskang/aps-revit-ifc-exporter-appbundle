@@ -38,6 +38,11 @@ This sample demonstrates how to implement Revit exporter that supports IFC expor
             "required": true,
             "localName": "$(inputFile)"
         },
+        "userPropertySetsFile": {
+            "verb": "get",
+            "description": "IFC user defined property set definition file",
+            "localName": "DasUserDefinedParameterSets.txt"
+        },
         "inputJson": {
             "verb": "get",
             "description": "input Json parameters",
@@ -50,7 +55,7 @@ This sample demonstrates how to implement Revit exporter that supports IFC expor
             "localName": "ifc"
         }
     },
-    "engine": "Autodesk.Revit+2021",
+    "engine": "Autodesk.Revit+2022",
     "appbundles": [
         "Autodesk.RevitIfcExportor+dev"
     ],
@@ -68,6 +73,10 @@ This sample demonstrates how to implement Revit exporter that supports IFC expor
             "verb": "get",
             "url": "https://developer.api.autodesk.com/oss/v2/apptestbucket/9d3be632-a4fc-457d-bc5d-9e75cefc54b7?region=US"
         },
+        "userPropertySetsFile": {
+            "verb": "get",
+            "url": "https://developer.api.autodesk.com/oss/v2/apptestbucket/97095bbc-1ce3-469f-99ba-0157bbcab73b?region=US"
+        },
         "inputJson": {
             "url": "data:application/json,{\"exportSettingName\":\"IFC2x3 Coordination View 2.0\"}"
         },
@@ -80,6 +89,48 @@ This sample demonstrates how to implement Revit exporter that supports IFC expor
         }
     }
 }
+```
+
+### Example of userPropertySetsFile for IFC
+
+```
+#
+# User Defined PropertySet Definition File
+#
+# Format:
+#    PropertySet:	<Pset Name>	I[nstance]/T[ype]	<element list separated by ','>
+#	<Property Name 1>	<Data type>	<[opt] Revit parameter name, if different from IFC>
+#	<Property Name 2>	<Data type>	<[opt] Revit parameter name, if different from IFC>
+#	...
+#
+# Data types supported: Area, Boolean, ClassificationReference, ColorTemperature, Count, Currency, 
+#	ElectricalCurrent, ElectricalEfficacy, ElectricalVoltage, Force, Frequency, Identifier, 
+#	Illuminance, Integer, Label, Length, Logical, LuminousFlux, LuminousIntensity, 
+#	NormalisedRatio, PlaneAngle, PositiveLength, PositivePlaneAngle, PositiveRatio, Power, 
+#	Pressure, Ratio, Real, Text, ThermalTransmittance, ThermodynamicTemperature, Volume, 
+#	VolumetricFlowRate
+# 
+# Example property set definition for COBie:
+#
+#PropertySet:	COBie_Specification	T	IfcElementType
+#	NominalLength	Real	COBie.Type.NominalLength
+#	NominalWidth	Real	COBie.Type.NominalWidth
+#	NominalHeight	Real	COBie.Type.NominalHeight
+#	Shape		Text	COBie.Type.Shape
+#	Size		Text	COBie.Type.Size
+#	Color		Text	COBie.Type.Color
+#	Finish		Text	COBie.Type.Finish
+#	Grade		Text	COBie.Type.Grade
+#	Material	Text	COBie.Type.Material
+#	Constituents	Text	COBie.Type.Constituents
+#	Features	Text	Cobie.Type.Features
+#	AccessibilityPerformance	Text	COBie.Type.AccessibilityPerformance
+#	CodePerformance	Text	COBie.Type.CodePerformance
+#	SustainabilityPerformance	Text	COBie.Type.SustainabilityPerformance
+# 
+
+PropertySet:	DAS Parameters	I	IfcRoof
+	FM ID	Text
 ```
 
 ## Todo
