@@ -65,6 +65,8 @@ This sample demonstrates how to implement Revit exporter that supports IFC expor
 
 ### Workitem example
 
+#### Using userPropertySets filename defined in the IFC export configuration sets
+
 ```json
 {
     "activityId": "Autodesk.RevitIfcExportorActivity+dev",
@@ -79,6 +81,35 @@ This sample demonstrates how to implement Revit exporter that supports IFC expor
         },
         "inputJson": {
             "url": "data:application/json,{\"exportSettingName\":\"IFC2x3 Coordination View 2.0\"}"
+        },
+        "outputIFC": {
+            "verb": "put",
+            "url": "https://developer.api.autodesk.com/oss/v2/apptestbucket/9d3be632-a4fc-457d-bc5d-9e75cefc54b7?region=US",
+            "headers": {
+                "Content-Type": "application/octet-stream"
+            }
+        }
+    }
+}
+```
+
+#### Using userPropertySets filename override
+
+```json
+{
+    "activityId": "Autodesk.RevitIfcExportorActivity+dev",
+    "arguments": {
+        "inputFile": {
+            "verb": "get",
+            "url": "https://developer.api.autodesk.com/oss/v2/apptestbucket/9d3be632-a4fc-457d-bc5d-9e75cefc54b7?region=US"
+        },
+        "userPropertySetsFile": {
+            "verb": "get",
+            "url": "https://developer.api.autodesk.com/oss/v2/apptestbucket/97095bbc-1ce3-469f-99ba-0157bbcab73b?region=US",
+            "localName": "FmUserDefinedPropSets.txt"
+        },
+        "inputJson": {
+            "url": "data:application/json,{\"exportSettingName\":\"My IFC Export Setup\", \"userDefinedPropertySetsFilenameOverride\": \"FmUserDefinedPropSets.txt\"}"
         },
         "outputIFC": {
             "verb": "put",

@@ -57,6 +57,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ExportIfcFailuresProcessor.cs" />
     <Compile Include="IFC\ConfigurationComparer.cs" />
     <Compile Include="IFC\IFCAddress.cs" />
     <Compile Include="IFC\IFCAddressItem.cs" />

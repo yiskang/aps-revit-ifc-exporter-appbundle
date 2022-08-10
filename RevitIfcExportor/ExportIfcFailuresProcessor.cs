@@ -1,4 +1,4 @@
-﻿// (C) Copyright 2021 by Autodesk, Inc. 
+﻿// (C) Copyright 2022 by Autodesk, Inc. 
 //
 // Permission to use, copy, modify, and distribute this software
 // in object code form for any purpose and without fee is hereby
@@ -20,15 +20,32 @@
 // applicable.
 //
 
+using Autodesk.Revit.DB;
+using System.Collections.Generic;
+
 namespace RevitIfcExportor
 {
-    class InputParams
+    internal class ExportIfcFailuresProcessor : IFailuresProcessor
     {
-        public string ExportSettingName { get; set; }
+        public void Dismiss(Document document)
+        {
+        }
 
-        public string UserDefinedPropertySetsFilenameOverride { get; set; }
+        public FailureProcessingResult ProcessFailures(FailuresAccessor data)
+        {
+            IList<FailureMessageAccessor> failures = data.GetFailureMessages();
 
-        public string userDefinedParameterMappingFilenameOverride { get; set; }
+            foreach (FailureMessageAccessor f in failures)
+            {
+                FailureSeverity fseverity = data.GetSeverity();
+
+                if (fseverity == FailureSeverity.Warning)
+                {
+                    data.DeleteWarning(f);
+                }
+            }
+
+            return FailureProcessingResult.Continue;
+        }
     }
 }
-

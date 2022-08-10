@@ -60,6 +60,9 @@ namespace RevitIfcExportor
         private void HandleDesignAutomationReadyEvent(object sender, DesignAutomationReadyEventArgs e)
         {
             LogTrace("Design Automation Ready event triggered...");
+            // Hook up the CustomFailureHandling failure processor.
+            Application.RegisterFailuresProcessor(new ExportIfcFailuresProcessor());
+
             e.Succeeded = true;
             e.Succeeded = this.DoExport(e.DesignAutomationData);
         }
@@ -113,7 +116,22 @@ namespace RevitIfcExportor
                 var exportConfig = configurationsMap[inputParams.ExportSettingName];
                 var exportOptions = new IFCExportOptions();
 
-               
+                if(!string.IsNullOrWhiteSpace(inputParams.UserDefinedPropertySetsFilenameOverride))
+                {
+                    exportConfig.ExportUserDefinedPsets = true;
+
+                    var userDefinedPsetsFileName = Path.GetFileName(inputParams.UserDefinedPropertySetsFilenameOverride);
+                    exportConfig.ExportUserDefinedPsetsFileName = Path.Combine(Directory.GetCurrentDirectory(), userDefinedPsetsFileName);
+                }
+
+                if (!string.IsNullOrWhiteSpace(inputParams.userDefinedParameterMappingFilenameOverride))
+                {
+                    exportConfig.ExportUserDefinedParameterMapping = true;
+
+                    var userDefinedParameterMappingFileName = Path.GetFileName(inputParams.userDefinedParameterMappingFilenameOverride);
+                    exportConfig.ExportUserDefinedParameterMappingFileName = Path.Combine(Directory.GetCurrentDirectory(), userDefinedParameterMappingFileName);
+                }
+
                 ElementId activeViewId = ElementId.InvalidElementId;
                 if(exportConfig.UseActiveViewGeometry)
                 {
