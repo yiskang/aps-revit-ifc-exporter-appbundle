@@ -150,12 +150,6 @@ namespace RevitIfcExportor
                 {
                     try
                     {
-                        //var path = Path.GetDirectoryName(modelPath);
-                        //var name = Path.GetFileName(modelPath);
-                        //string fileExt = this.GetFileExtension(exportConfig.IFCFileType);
-                        //string filename = Path.ChangeExtension(name, fileExt);
-
-                        IFCExportOptions opt = null;
                         trans.Start();
                         result = doc.Export(exportPath, doc.Title, exportOptions);
                         trans.RollBack();
