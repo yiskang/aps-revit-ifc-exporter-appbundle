@@ -34,8 +34,14 @@
     <Reference Include="DesignAutomationBridge, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Autodesk.Forge.DesignAutomation.Revit.2022.0.1\lib\net48\DesignAutomationBridge.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="NewtonSoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Revit 2022\NewtonSoft.Json.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Revit.IFC.Common">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Revit 2022\Revit.IFC.Common.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="RevitAPI">
       <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Revit 2022\RevitAPI.dll</HintPath>
@@ -59,24 +65,13 @@
   <ItemGroup>
     <Compile Include="ExportIfcFailuresProcessor.cs" />
     <Compile Include="IFC\ConfigurationComparer.cs" />
-    <Compile Include="IFC\IFCAddress.cs" />
-    <Compile Include="IFC\IFCAddressItem.cs" />
-    <Compile Include="IFC\IFCClassification.cs" />
-    <Compile Include="IFC\IFCClassificationMgr.cs" />
     <Compile Include="IFC\IFCEnumExtensions.cs" />
-    <Compile Include="IFC\IFCFileHeader.cs" />
-    <Compile Include="IFC\IFCFileHeaderItem.cs" />
     <Compile Include="IFC\IFCVersionAttributes.cs" />
     <Compile Include="InputParams.cs" />
     <Compile Include="MainApp.cs" />
-    <Compile Include="IFC\CommonEnum.cs" />
-    <Compile Include="IFC\IFC2xEntityType.cs" />
-    <Compile Include="IFC\IFC4EntityType.cs" />
-    <Compile Include="IFC\IFCEntityType.cs" />
     <Compile Include="IFC\IFCExchangeRequirements.cs" />
     <Compile Include="IFC\IFCExportConfiguration.cs" />
     <Compile Include="IFC\IFCExportConfigurationsMap.cs" />
-    <Compile Include="IFC\IFCKnownMVDAndER.cs" />
     <Compile Include="IFC\IFCPhaseAttributes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

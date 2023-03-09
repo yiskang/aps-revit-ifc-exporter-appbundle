@@ -273,6 +273,7 @@ PropertySet:	DAS Parameters	I	IfcRoof
 
  - [ ] Support exporting IFC from Revit links
  - [ ] Support site placement related options
+ - [ ] Support IFCExchangeRequirements
  - [x] Support exporting only elements visible in specified view
 
 ## License
