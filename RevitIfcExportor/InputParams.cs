@@ -29,6 +29,10 @@ namespace RevitIfcExportor
         public string UserDefinedPropertySetsFilenameOverride { get; set; }
 
         public string userDefinedParameterMappingFilenameOverride { get; set; }
+
+        public bool OnlyExportVisibleElementsInView { get; set; } = false;
+
+        public string ViewId { get; set; }
     }
 }
 

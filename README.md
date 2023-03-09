@@ -165,15 +165,65 @@ This sample demonstrates how to implement Revit exporter that supports IFC expor
 }
 ```
 
+### Export only elements visible in the given view unique id via inline JSON
+
+```json
+{
+    "activityId": "Autodesk.RevitIfcExportorActivity+dev",
+    "arguments": {
+        "inputFile": {
+            "verb": "get",
+            "url": "https://developer.api.autodesk.com/oss/v2/apptestbucket/9d3be632-a4fc-457d-bc5d-9e75cefc54b7?region=US"
+        },
+        "inputJson": {
+            "url": "data:application/json,{\"exportSettingName\":\"My IFC Export Setup\", \"viewId\": \"44745acb-ebea-4fb9-a091-88d28bd746c7-000ea86d\"}"
+        },
+        "outputIFC": {
+            "verb": "put",
+            "url": "https://developer.api.autodesk.com/oss/v2/apptestbucket/9d3be632-a4fc-457d-bc5d-9e75cefc54b7?region=US",
+            "headers": {
+                "Content-Type": "application/octet-stream"
+            }
+        }
+    }
+}
+```
+
+What if the IFC expected setup hasn't checked the `"Export only elements visible in view"` option? No worry, we just need to specify `"onlyExportVisibleElementsInView": true` in the `inputJson` like below to turn it on on the fly.
+
+```json
+{
+    "activityId": "Autodesk.RevitIfcExportorActivity+dev",
+    "arguments": {
+        "inputFile": {
+            "verb": "get",
+            "url": "https://developer.api.autodesk.com/oss/v2/apptestbucket/9d3be632-a4fc-457d-bc5d-9e75cefc54b7?region=US"
+        },
+        "inputJson": {
+            "url": "data:application/json,{\"exportSettingName\":\"My IFC Export Setup\", \"viewId\": \"44745acb-ebea-4fb9-a091-88d28bd746c7-000ea86d\", \"onlyExportVisibleElementsInView\": \"true\"}"
+        },
+        "outputIFC": {
+            "verb": "put",
+            "url": "https://developer.api.autodesk.com/oss/v2/apptestbucket/9d3be632-a4fc-457d-bc5d-9e75cefc54b7?region=US",
+            "headers": {
+                "Content-Type": "application/octet-stream"
+            }
+        }
+    }
+}
+```
+
 ### Example of params.json
 
 Here is an example of the available options in the params.json. Only `exportSettingName` is required.
 
 ```json
 {
-    "exportSettingName": "DAS IFC2x3 CV 2.0",
+    "exportSettingName": "My IFC Export Setup",
     "userDefinedPropertySetsFilenameOverride": "DasUserDefinedPropSets.txt",
-    "userDefinedParameterMappingFilenameOverride": "DasUserDefinedParameterMapping.txt"
+    "userDefinedParameterMappingFilenameOverride": "DasUserDefinedParameterMapping.txt",
+    "onlyExportVisibleElementsInView": true,
+    "viewId": "44745acb-ebea-4fb9-a091-88d28bd746c7-000ea86d"
 }
 ```
 
@@ -223,6 +273,7 @@ PropertySet:	DAS Parameters	I	IfcRoof
 
  - [ ] Support exporting IFC from Revit links
  - [ ] Support site placement related options
+ - [x] Support exporting only elements visible in specified view
 
 ## License
 

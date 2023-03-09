@@ -132,15 +132,17 @@ namespace RevitIfcExportor
                     exportConfig.ExportUserDefinedParameterMappingFileName = Path.Combine(Directory.GetCurrentDirectory(), userDefinedParameterMappingFileName);
                 }
 
-                ElementId activeViewId = ElementId.InvalidElementId;
-                if(exportConfig.UseActiveViewGeometry)
+                ElementId filterViewId = this.GetFilterViewId(doc, inputParams);
+                if (exportConfig.UseActiveViewGeometry)
                 {
-                    View activeView = doc.ActiveView;
-                    activeViewId = (activeView == null) ? ElementId.InvalidElementId : doc.ActiveView.Id;
+                    exportConfig.ActiveViewId = filterViewId.IntegerValue;
                 }
-                    
-                exportConfig.ActiveViewId = activeViewId.IntegerValue;
-                exportConfig.UpdateOptions(doc, exportOptions, activeViewId);
+
+                if (inputParams.OnlyExportVisibleElementsInView == true) //!<<< Override the `Export only elements visible in view` option on the fly
+                {
+                    exportConfig.VisibleElementsOfCurrentView = true;
+                }
+                exportConfig.UpdateOptions(doc, exportOptions, filterViewId);
 
                 LogTrace("Creating export folder...");
 
@@ -190,6 +192,24 @@ namespace RevitIfcExportor
             LogTrace("Exporting completed...");
 
             return true;
+        }
+
+        private ElementId GetFilterViewId(Document document, InputParams inputParams)
+        {
+            ElementId filterViewId = ElementId.InvalidElementId;
+
+            if (!string.IsNullOrWhiteSpace(inputParams.ViewId))
+            {
+                View filterView = document.GetElement(inputParams.ViewId) as View;
+                filterViewId = (filterView == null) ? ElementId.InvalidElementId : filterView.Id;
+            }
+            else
+            {
+                View activeView = document.ActiveView;
+                filterViewId = (activeView == null) ? ElementId.InvalidElementId : document.ActiveView.Id;
+            }
+
+            return filterViewId;
         }
 
         private string GetFileExtension(IFCFileFormat fileFormat)
