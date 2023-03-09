@@ -4,8 +4,10 @@
 
 ![Windows](https://img.shields.io/badge/Plugins-Windows-lightgrey.svg)
 ![.NET](https://img.shields.io/badge/.NET%20Framework-4.8-blue.svg)
+
 [![Revit-2021](https://img.shields.io/badge/Revit-2021-lightgrey.svg)](http://autodesk.com/revit)
 [![Revit-2022](https://img.shields.io/badge/Revit-2022-lightgrey.svg)](http://autodesk.com/revit)
+[![Revit-2023](https://img.shields.io/badge/Revit-2023-lightgrey.svg)](http://autodesk.com/revit)
 
 ![Advanced](https://img.shields.io/badge/Level-Advanced-red.svg)
 [![MIT](https://img.shields.io/badge/License-MIT-blue.svg)](http://opensource.org/licenses/MIT)
@@ -19,8 +21,8 @@ This sample demonstrates how to implement Revit exporter that supports IFC expor
 ## Prerequisites
 
 1. **Forge Account**: Learn how to create a Forge Account, activate subscription and create an app at [this tutorial](http://learnforge.autodesk.io/#/account/). 
-2. **Visual Studio 2019** (Windows).
-3. **Revit 2021 or 2022**: required to compile changes into the plugin
+2. **Visual Studio 2019 and later** (Windows).
+3. **Revit 2021 and later**: required to compile changes into the plugin
 
 ## Design Automation Setup
 
@@ -42,7 +44,12 @@ This sample demonstrates how to implement Revit exporter that supports IFC expor
         "userPropertySetsFile": {
             "verb": "get",
             "description": "IFC user defined property set definition file",
-            "localName": "DasUserDefinedParameterSets.txt"
+            "localName": "userDefinedParameterSets.txt"
+        },
+        "userParameterMappingFile": {
+            "verb": "get",
+            "description": "IFC user defined parameter mapping file",
+            "localName": "userDefinedParameterMapping.txt"
         },
         "inputJson": {
             "verb": "get",
@@ -66,7 +73,7 @@ This sample demonstrates how to implement Revit exporter that supports IFC expor
 
 ### Workitem example
 
-#### Using userPropertySets filename defined in the IFC export configuration sets
+#### Use userPropertySets filename defined in the IFC export configuration sets and specify addin settings via inline json
 
 ```json
 {
@@ -94,7 +101,42 @@ This sample demonstrates how to implement Revit exporter that supports IFC expor
 }
 ```
 
-#### Using userPropertySets filename override
+**Note.** While providing inuptJSON by inline format, DA will save it as `param.json` after DA starts processing the workitem.
+
+### Use userPropertySets and userDefinedParameterMapping filename defined in the IFC export configuration sets, and specify addin settings via concrete JSON file
+
+```json
+{
+    "activityId": "Autodesk.RevitIfcExportorActivity+dev",
+    "arguments": {
+        "inputFile": {
+            "verb": "get",
+            "url": "https://developer.api.autodesk.com/oss/v2/apptestbucket/9d3be632-a4fc-457d-bc5d-9e75cefc54b7?region=US"
+        },
+        "userPropertySetsFile": {
+            "verb": "get",
+            "url": "https://developer.api.autodesk.com/oss/v2/apptestbucket/97095bbc-1ce3-469f-99ba-0157bbcab73b?region=US"
+        },
+        "userParameterMappingFile": {
+            "verb": "get",
+            "url": "https://developer.api.autodesk.com/oss/v2/apptestbucket/f0ff99e0-75dc-4aa1-acd4-3933657013d6?region=US"
+        },
+        "inputJson": {
+            "verb": "get",
+            "url": "https://developer.api.autodesk.com/oss/v2/apptestbucket/ab593357-6c6e-44dc-8308-8a7c92b25494?region=US"
+        },
+        "outputIFC": {
+            "verb": "put",
+            "url": "https://developer.api.autodesk.com/oss/v2/apptestbucket/9d3be632-a4fc-457d-bc5d-9e75cefc54b7?region=US",
+            "headers": {
+                "Content-Type": "application/octet-stream"
+            }
+        }
+    }
+}
+```
+
+### Use userPropertySets filename override and specify addin settings via inline json
 
 ```json
 {
@@ -120,6 +162,18 @@ This sample demonstrates how to implement Revit exporter that supports IFC expor
             }
         }
     }
+}
+```
+
+### Example of params.json
+
+Here is an example of the available options in the params.json. Only `exportSettingName` is required.
+
+```json
+{
+    "exportSettingName": "DAS IFC2x3 CV 2.0",
+    "userDefinedPropertySetsFilenameOverride": "DasUserDefinedPropSets.txt",
+    "userDefinedParameterMappingFilenameOverride": "DasUserDefinedParameterMapping.txt"
 }
 ```
 
