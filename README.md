@@ -1,13 +1,10 @@
-# Revit IFC Exporter Appbundle for APS Design Automation
+# Revit IFC Exporter App bundle for Autodesk APS Design Automation
 
 [![Design Automation](https://img.shields.io/badge/Design%20Automation-v3-green.svg)](http://developer.autodesk.com/)
 
-![Windows](https://img.shields.io/badge/Plugins-Windows-lightgrey.svg)
+![Revit](https://img.shields.io/badge/Plugins-Revit-lightgrey.svg)
 ![.NET](https://img.shields.io/badge/.NET%20Framework-4.8-blue.svg)
-
-[![Revit-2021](https://img.shields.io/badge/Revit-2021-lightgrey.svg)](http://autodesk.com/revit)
-[![Revit-2022](https://img.shields.io/badge/Revit-2022-lightgrey.svg)](http://autodesk.com/revit)
-[![Revit-2023](https://img.shields.io/badge/Revit-2023-lightgrey.svg)](http://autodesk.com/revit)
+[![Revit](https://img.shields.io/badge/Revit-2021|2022|2023-lightgrey.svg)](https://www.autodesk.com/products/revit/overview/)
 
 ![Advanced](https://img.shields.io/badge/Level-Advanced-red.svg)
 [![MIT](https://img.shields.io/badge/License-MIT-blue.svg)](http://opensource.org/licenses/MIT)
@@ -20,7 +17,7 @@ This sample demonstrates how to implement Revit exporter that supports IFC expor
 
 ## Prerequisites
 
-1. **Forge Account**: Learn how to create a Forge Account, activate subscription and create an app at [this tutorial](http://learnforge.autodesk.io/#/account/). 
+1. **APS Account**: Learn how to create a APS Account, activate subscription and create an app at [this tutorial](https://aps.autodesk.com/tutorials). 
 2. **Visual Studio 2019 and later** (Windows).
 3. **Revit 2021 and later**: required to compile changes into the plugin
 
@@ -271,6 +268,9 @@ PropertySet:	DAS Parameters	I	IfcRoof
 
 ## Todo
 
+ - [ ] Add compile options for multiple Revit versions (e.g. From Revit 2021 to Revit 2023)
+ - [ ] Add pre-complied DLLs to repository releases.
+ - [ ] Support specifying IFC export settings on the fly without pre-saved ones in RVT file.
  - [ ] Support exporting IFC from Revit links
  - [ ] Support site placement related options
  - [ ] Support IFCExchangeRequirements
@@ -282,4 +282,4 @@ This sample is licensed under the terms of the [MIT License](http://opensource.o
 
 ## Written by
 
-Eason Kang [@yiskang](https://twitter.com/yiskang), [Forge Partner Development](http://forge.autodesk.com)
+Eason Kang [@yiskang](https://twitter.com/yiskang), [Autodesk Developer Advocacy and Support](http://aps.autodesk.com)
