@@ -60,7 +60,7 @@ This sample demonstrates how to implement Revit exporter that supports IFC expor
         },
         "inputJson": {
             "verb": "get",
-            "description": "input Json parameters",
+            "description": "Input Json parameters",
             "localName": "params.json"
         },
         "outputIFC": {
