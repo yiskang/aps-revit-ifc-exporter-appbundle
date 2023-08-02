@@ -17,11 +17,21 @@ This sample demonstrates how to implement Revit exporter that supports IFC expor
 
 ## Prerequisites
 
-1. **APS Account**: Learn how to create a APS Account, activate subscription and create an app at [this tutorial](https://aps.autodesk.com/tutorials). 
+1. **APS Account**: Learn how to create a APS Account, activate subscription and create an app at [this tutorial](https://aps.autodesk.com/tutorials).
 2. **Visual Studio 2019 and later** (Windows).
 3. **Revit 2021 and later**: required to compile changes into the plugin
 
 ## Design Automation Setup
+
+### AppBundle example
+
+```json
+{
+    "id": "RevitIfcExportor",
+    "engine": "Autodesk.Revit+2022",
+    "description": "Revit IFC exporter with Revit IFC export options support"
+}
+```
 
 ### Activity example
 
@@ -231,50 +241,50 @@ Here is an example of the available options in the params.json. Only `exportSett
 # User Defined PropertySet Definition File
 #
 # Format:
-#    PropertySet:	<Pset Name>	I[nstance]/T[ype]	<element list separated by ','>
-#	<Property Name 1>	<Data type>	<[opt] Revit parameter name, if different from IFC>
-#	<Property Name 2>	<Data type>	<[opt] Revit parameter name, if different from IFC>
-#	...
+#    PropertySet: <Pset Name> I[nstance]/T[ype] <element list separated by ','>
+# <Property Name 1> <Data type> <[opt] Revit parameter name, if different from IFC>
+# <Property Name 2> <Data type> <[opt] Revit parameter name, if different from IFC>
+# ...
 #
 # Data types supported: Area, Boolean, ClassificationReference, ColorTemperature, Count, Currency, 
-#	ElectricalCurrent, ElectricalEfficacy, ElectricalVoltage, Force, Frequency, Identifier, 
-#	Illuminance, Integer, Label, Length, Logical, LuminousFlux, LuminousIntensity, 
-#	NormalisedRatio, PlaneAngle, PositiveLength, PositivePlaneAngle, PositiveRatio, Power, 
-#	Pressure, Ratio, Real, Text, ThermalTransmittance, ThermodynamicTemperature, Volume, 
-#	VolumetricFlowRate
+# ElectricalCurrent, ElectricalEfficacy, ElectricalVoltage, Force, Frequency, Identifier, 
+# Illuminance, Integer, Label, Length, Logical, LuminousFlux, LuminousIntensity, 
+# NormalisedRatio, PlaneAngle, PositiveLength, PositivePlaneAngle, PositiveRatio, Power, 
+# Pressure, Ratio, Real, Text, ThermalTransmittance, ThermodynamicTemperature, Volume, 
+# VolumetricFlowRate
 # 
 # Example property set definition for COBie:
 #
-#PropertySet:	COBie_Specification	T	IfcElementType
-#	NominalLength	Real	COBie.Type.NominalLength
-#	NominalWidth	Real	COBie.Type.NominalWidth
-#	NominalHeight	Real	COBie.Type.NominalHeight
-#	Shape		Text	COBie.Type.Shape
-#	Size		Text	COBie.Type.Size
-#	Color		Text	COBie.Type.Color
-#	Finish		Text	COBie.Type.Finish
-#	Grade		Text	COBie.Type.Grade
-#	Material	Text	COBie.Type.Material
-#	Constituents	Text	COBie.Type.Constituents
-#	Features	Text	Cobie.Type.Features
-#	AccessibilityPerformance	Text	COBie.Type.AccessibilityPerformance
-#	CodePerformance	Text	COBie.Type.CodePerformance
-#	SustainabilityPerformance	Text	COBie.Type.SustainabilityPerformance
+#PropertySet: COBie_Specification T IfcElementType
+# NominalLength Real COBie.Type.NominalLength
+# NominalWidth Real COBie.Type.NominalWidth
+# NominalHeight Real COBie.Type.NominalHeight
+# Shape  Text COBie.Type.Shape
+# Size  Text COBie.Type.Size
+# Color  Text COBie.Type.Color
+# Finish  Text COBie.Type.Finish
+# Grade  Text COBie.Type.Grade
+# Material Text COBie.Type.Material
+# Constituents Text COBie.Type.Constituents
+# Features Text Cobie.Type.Features
+# AccessibilityPerformance Text COBie.Type.AccessibilityPerformance
+# CodePerformance Text COBie.Type.CodePerformance
+# SustainabilityPerformance Text COBie.Type.SustainabilityPerformance
 # 
 
-PropertySet:	DAS Parameters	I	IfcRoof
-	FM ID	Text
+PropertySet: DAS Parameters I IfcRoof
+ FM ID Text
 ```
 
 ## Todo
 
- - [ ] Add compile options for multiple Revit versions (e.g. From Revit 2021 to Revit 2023)
- - [ ] Add pre-complied DLLs to repository releases.
- - [ ] Support specifying IFC export settings on the fly without pre-saved ones in RVT file.
- - [ ] Support exporting IFC from Revit links
- - [ ] Support site placement related options
- - [ ] Support IFCExchangeRequirements
- - [x] Support exporting only elements visible in specified view
+- [ ] Add compile options for multiple Revit versions (e.g. From Revit 2021 to Revit 2023)
+- [ ] Add pre-complied DLLs to repository releases.
+- [ ] Support specifying IFC export settings on the fly without pre-saved ones in RVT file.
+- [ ] Support exporting IFC from Revit links
+- [ ] Support site placement related options
+- [ ] Support IFCExchangeRequirements
+- [x] Support exporting only elements visible in specified view
 
 ## License
 
