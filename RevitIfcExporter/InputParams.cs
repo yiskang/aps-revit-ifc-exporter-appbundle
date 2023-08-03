@@ -20,7 +20,7 @@
 // applicable.
 //
 
-namespace RevitIfcExportor
+namespace RevitIfcExporter
 {
     class InputParams
     {

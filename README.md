@@ -27,7 +27,7 @@ This sample demonstrates how to implement Revit exporter that supports IFC expor
 
 ```json
 {
-    "id": "RevitIfcExportor",
+    "id": "RevitIfcExporter",
     "engine": "Autodesk.Revit+2022",
     "description": "Revit IFC exporter with Revit IFC export options support"
 }
@@ -37,9 +37,9 @@ This sample demonstrates how to implement Revit exporter that supports IFC expor
 
 ```json
 {
-    "id": "RevitIfcExportorActivity",
+    "id": "RevitIfcExporterActivity",
     "commandLine": [
-        "$(engine.path)\\\\revitcoreconsole.exe /i \"$(args[inputFile].path)\" /al \"$(appbundles[RevitIfcExportor].path)\""
+        "$(engine.path)\\\\revitcoreconsole.exe /i \"$(args[inputFile].path)\" /al \"$(appbundles[RevitIfcExporter].path)\""
     ],
     "parameters": {
         "inputFile": {
@@ -77,7 +77,7 @@ This sample demonstrates how to implement Revit exporter that supports IFC expor
     },
     "engine": "Autodesk.Revit+2022",
     "appbundles": [
-        "Autodesk.RevitIfcExportor+dev"
+        "Autodesk.RevitIfcExporter+dev"
     ],
     "description": "Activity of Revit IFC Exporter with Autodesk IFC export options support"
 }
@@ -89,7 +89,7 @@ This sample demonstrates how to implement Revit exporter that supports IFC expor
 
 ```json
 {
-    "activityId": "Autodesk.RevitIfcExportorActivity+dev",
+    "activityId": "Autodesk.RevitIfcExporterActivity+dev",
     "arguments": {
         "inputFile": {
             "verb": "get",
@@ -119,7 +119,7 @@ This sample demonstrates how to implement Revit exporter that supports IFC expor
 
 ```json
 {
-    "activityId": "Autodesk.RevitIfcExportorActivity+dev",
+    "activityId": "Autodesk.RevitIfcExporterActivity+dev",
     "arguments": {
         "inputFile": {
             "verb": "get",
@@ -152,7 +152,7 @@ This sample demonstrates how to implement Revit exporter that supports IFC expor
 
 ```json
 {
-    "activityId": "Autodesk.RevitIfcExportorActivity+dev",
+    "activityId": "Autodesk.RevitIfcExporterActivity+dev",
     "arguments": {
         "inputFile": {
             "verb": "get",
@@ -182,7 +182,7 @@ This sample demonstrates how to implement Revit exporter that supports IFC expor
 
 ```json
 {
-    "activityId": "Autodesk.RevitIfcExportorActivity+dev",
+    "activityId": "Autodesk.RevitIfcExporterActivity+dev",
     "arguments": {
         "inputFile": {
             "verb": "get",
@@ -207,7 +207,7 @@ What if the IFC expected setup hasn't checked the `"Export only elements visible
 
 ```json
 {
-    "activityId": "Autodesk.RevitIfcExportorActivity+dev",
+    "activityId": "Autodesk.RevitIfcExporterActivity+dev",
     "arguments": {
         "inputFile": {
             "verb": "get",
@@ -290,7 +290,7 @@ No more pre-saved IFC export settings in RVT file. Now it supports importing the
 
 ```json
 {
-    "activityId": "Autodesk.RevitIfcExportorActivity+dev",
+    "activityId": "Autodesk.RevitIfcExporterActivity+dev",
     "arguments": {
         "inputFile": {
             "verb": "get",

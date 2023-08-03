@@ -7,8 +7,8 @@
     <ProjectGuid>{2FAF7D6A-8578-43A0-AB0B-F7C03D2B2F7E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>RevitIfcExportor</RootNamespace>
-    <AssemblyName>RevitIfcExportor</AssemblyName>
+    <RootNamespace>RevitIfcExporter</RootNamespace>
+    <AssemblyName>RevitIfcExporter</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -78,19 +78,19 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="RevitIfcExportor.bundle\Contents\RevitIfcExportor.addin" />
+    <None Include="RevitIfcExporter.bundle\Contents\RevitIfcExporter.addin" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="RevitIfcExportor.bundle\PackageContents.xml" />
+    <Content Include="RevitIfcExporter.bundle\PackageContents.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y /F "$(TargetDir)*.dll" "$(ProjectDir)RevitIfcExportor.bundle\Contents\"
-del /F "$(TargetDir)RevitIfcExportor.zip"
-"C:\Program Files\7-Zip\7z.exe" a -tzip "$(TargetDir)RevitIfcExportor.zip" "$(ProjectDir)RevitIfcExportor.bundle\" -xr0!*.pdb
+    <PostBuildEvent>xcopy /Y /F "$(TargetDir)*.dll" "$(ProjectDir)RevitIfcExporter.bundle\Contents\"
+del /F "$(TargetDir)RevitIfcExporter.zip"
+"C:\Program Files\7-Zip\7z.exe" a -tzip "$(TargetDir)RevitIfcExporter.zip" "$(ProjectDir)RevitIfcExporter.bundle\" -xr0!*.pdb
 
 
-if exist "$(AppData)\Autodesk\REVIT\Addins\2022" copy "$(ProjectDir)RevitIfcExportor.bundle\Contents\*.addin" "$(AppData)\Autodesk\REVIT\Addins\2022"
+if exist "$(AppData)\Autodesk\REVIT\Addins\2022" copy "$(ProjectDir)RevitIfcExporter.bundle\Contents\*.addin" "$(AppData)\Autodesk\REVIT\Addins\2022"
 if exist "$(AppData)\Autodesk\REVIT\Addins\2022" copy "$(ProjectDir)$(OutputPath)*.dll" "$(AppData)\Autodesk\REVIT\Addins\2022"</PostBuildEvent>
   </PropertyGroup>
 </Project>

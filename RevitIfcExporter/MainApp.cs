@@ -32,7 +32,7 @@ using Newtonsoft.Json;
 using BIM.IFC.Export;
 using Autodesk.Revit.DB.IFC;
 
-namespace RevitIfcExportor
+namespace RevitIfcExporter
 {
     [Transaction(TransactionMode.Manual)]
     [Regeneration(RegenerationOption.Manual)]

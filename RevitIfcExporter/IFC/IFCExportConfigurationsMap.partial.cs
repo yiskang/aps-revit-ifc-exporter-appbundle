@@ -21,7 +21,7 @@
 
 using Autodesk.Revit.DB;
 using Newtonsoft.Json;
-using RevitIfcExportor;
+using RevitIfcExporter;
 using System.IO;
 
 namespace BIM.IFC.Export

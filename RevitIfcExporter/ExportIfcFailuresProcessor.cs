@@ -23,7 +23,7 @@
 using Autodesk.Revit.DB;
 using System.Collections.Generic;
 
-namespace RevitIfcExportor
+namespace RevitIfcExporter
 {
     internal class ExportIfcFailuresProcessor : IFailuresProcessor
     {
