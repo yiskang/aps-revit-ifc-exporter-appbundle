@@ -4,7 +4,7 @@
 
 ![Revit](https://img.shields.io/badge/Plugins-Revit-lightgrey.svg)
 ![.NET](https://img.shields.io/badge/.NET%20Framework-4.8-blue.svg)
-[![Revit](https://img.shields.io/badge/Revit-2021|2022|2023-lightgrey.svg)](https://www.autodesk.com/products/revit/overview/)
+[![Revit](https://img.shields.io/badge/Revit-2021|2022|2023|2024-lightgrey.svg)](https://www.autodesk.com/products/revit/overview/)
 
 ![Advanced](https://img.shields.io/badge/Level-Advanced-red.svg)
 [![MIT](https://img.shields.io/badge/License-MIT-blue.svg)](http://opensource.org/licenses/MIT)
@@ -389,8 +389,8 @@ No more pre-saved IFC export settings in RVT file. Now it supports importing the
 
 ## Todo
 
-- [ ] Add compile options for multiple Revit versions (e.g. From Revit 2021 to Revit 2023)
-- [ ] Add pre-complied DLLs to repository releases.
+- [x] Add compile options for supporting multiple Revit versions (e.g. From Revit 2021 to Revit 2024)
+- [x] Add pre-complied DLLs to repository releases.
 - [x] Support specifying IFC export settings on the fly without pre-saved ones in RVT file.
 - [ ] Support exporting IFC from Revit links
 - [ ] Support site placement related options

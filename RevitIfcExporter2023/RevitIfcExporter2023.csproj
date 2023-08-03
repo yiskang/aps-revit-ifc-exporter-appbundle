@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{2FAF7D6A-8578-43A0-AB0B-F7C03D2B2F7E}</ProjectGuid>
+    <ProjectGuid>{B0BDE226-A3F0-41D9-A027-2CEC77B44648}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>RevitIfcExporter</RootNamespace>
@@ -18,7 +18,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;BeforeRVT2022</DefineConstants>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -26,29 +26,29 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;BeforeRVT2022</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="DesignAutomationBridge, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Autodesk.Forge.DesignAutomation.Revit.2021.0.2\lib\net48\DesignAutomationBridge.dll</HintPath>
+      <HintPath>..\packages\Autodesk.Forge.DesignAutomation.Revit.2023.0.2\lib\net48\DesignAutomationBridge.dll</HintPath>
     </Reference>
     <Reference Include="NewtonSoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Revit 2021\NewtonSoft.Json.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Revit 2023\NewtonSoft.Json.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Revit.IFC.Common">
-      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Revit 2021\Revit.IFC.Common.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Revit 2023\Revit.IFC.Common.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="RevitAPI">
-      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Revit 2021\RevitAPI.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Revit 2023\RevitAPI.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="RevitAPIIFC">
-      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Revit 2021\RevitAPIIFC.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Revit 2023\RevitAPIIFC.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -63,18 +63,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ExportIfcFailuresProcessor.cs" />
-    <Compile Include="IFC\ConfigurationComparer.cs" />
-    <Compile Include="IFC\IFCEnumExtensions.cs" />
-    <Compile Include="IFC\IFCExportConfigurationsMap.partial.cs" />
-    <Compile Include="IFC\IFCKnownMVDAndER.cs" />
-    <Compile Include="IFC\IFCVersionAttributes.cs" />
-    <Compile Include="InputParams.cs" />
-    <Compile Include="MainApp.cs" />
-    <Compile Include="IFC\IFCExchangeRequirements.cs" />
-    <Compile Include="IFC\IFCExportConfiguration.cs" />
-    <Compile Include="IFC\IFCExportConfigurationsMap.cs" />
-    <Compile Include="IFC\IFCPhaseAttributes.cs" />
+    <Compile Include="..\RevitIfcExporter\ExportIfcFailuresProcessor.cs" Link="ExportIfcFailuresProcessor.cs" />
+    <Compile Include="..\RevitIfcExporter\IFC\ConfigurationComparer.cs" Link="IFC\ConfigurationComparer.cs" />
+    <Compile Include="..\RevitIfcExporter\IFC\IFCEnumExtensions.cs" Link="IFC\IFCEnumExtensions.cs" />
+    <Compile Include="..\RevitIfcExporter\IFC\IFCExportConfigurationsMap.partial.cs" Link="IFC\IFCExportConfigurationsMap.partial.cs" />
+    <Compile Include="..\RevitIfcExporter\IFC\IFCKnownMVDAndER.cs" Link="IFC\IFCKnownMVDAndER.cs" />
+    <Compile Include="..\RevitIfcExporter\IFC\IFCVersionAttributes.cs" Link="IFC\IFCVersionAttributes.cs" />
+    <Compile Include="..\RevitIfcExporter\InputParams.cs" Link="InputParams.cs" />
+    <Compile Include="..\RevitIfcExporter\MainApp.cs" Link="MainApp.cs" />
+    <Compile Include="..\RevitIfcExporter\IFC\IFCExchangeRequirements.cs" Link="IFC\IFCExchangeRequirements.cs" />
+    <Compile Include="..\RevitIfcExporter\IFC\IFCExportConfiguration.cs" Link="IFC\IFCExportConfiguration.cs" />
+    <Compile Include="..\RevitIfcExporter\IFC\IFCExportConfigurationsMap.cs" Link="IFC\IFCExportConfigurationsMap.cs" />
+    <Compile Include="..\RevitIfcExporter\IFC\IFCPhaseAttributes.cs" Link="IFC\IFCPhaseAttributes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -91,7 +91,7 @@ del /F "$(TargetDir)RevitIfcExporter.zip"
 "C:\Program Files\7-Zip\7z.exe" a -tzip "$(TargetDir)RevitIfcExporter.zip" "$(ProjectDir)RevitIfcExporter.bundle\" -xr0!*.pdb
 
 
-if exist "$(AppData)\Autodesk\REVIT\Addins\2021" copy "$(ProjectDir)RevitIfcExporter.bundle\Contents\*.addin" "$(AppData)\Autodesk\REVIT\Addins\2021"
-if exist "$(AppData)\Autodesk\REVIT\Addins\2021" copy "$(ProjectDir)$(OutputPath)*.dll" "$(AppData)\Autodesk\REVIT\Addins\2021"</PostBuildEvent>
+if exist "$(AppData)\Autodesk\REVIT\Addins\2023" copy "$(ProjectDir)RevitIfcExporter.bundle\Contents\*.addin" "$(AppData)\Autodesk\REVIT\Addins\2023"
+if exist "$(AppData)\Autodesk\REVIT\Addins\2023" copy "$(ProjectDir)$(OutputPath)*.dll" "$(AppData)\Autodesk\REVIT\Addins\2023"</PostBuildEvent>
   </PropertyGroup>
 </Project>
