@@ -110,38 +110,60 @@ namespace RevitIfcExportor
                 var configurationsMap = new IFCExportConfigurationsMap();
                 configurationsMap.AddBuiltInConfigurations();
                 configurationsMap.AddSavedConfigurations(doc);
+
+                if (inputParams.UseExportSettingFile)
+                {
+                    try
+                    {
+                        LogTrace("Importing user export configs...");
+                        var json = File.ReadAllText("userExportSettings.json");
+                        var eportSettingName = configurationsMap.AddConfigurationFromJson(json);
+                        inputParams.ExportSettingName = eportSettingName;
+
+                        LogTrace($"User export configs `{eportSettingName}` imported, and will use it to export IFC ...");
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new InvalidDataException($"Invalid `userExportSettings.json` or Empty JSON Input when `UseExportSettingFile` is true.");
+                    }
+                }
+
                 if (!configurationsMap.HasName(inputParams.ExportSettingName))
                     throw new InvalidDataException($"Invalid input ExportSettingName: `{inputParams.ExportSettingName}`");
               
                 var exportConfig = configurationsMap[inputParams.ExportSettingName];
-                var exportOptions = new IFCExportOptions();
 
                 if(!string.IsNullOrWhiteSpace(inputParams.UserDefinedPropertySetsFilenameOverride))
                 {
                     exportConfig.ExportUserDefinedPsets = true;
-
-                    var userDefinedPsetsFileName = Path.GetFileName(inputParams.UserDefinedPropertySetsFilenameOverride);
-                    exportConfig.ExportUserDefinedPsetsFileName = Path.Combine(Directory.GetCurrentDirectory(), userDefinedPsetsFileName);
+                    exportConfig.ExportUserDefinedPsetsFileName = inputParams.UserDefinedPropertySetsFilenameOverride;
                 }
 
-                if (!string.IsNullOrWhiteSpace(inputParams.userDefinedParameterMappingFilenameOverride))
+                if (!string.IsNullOrWhiteSpace(inputParams.UserDefinedParameterMappingFilenameOverride))
                 {
                     exportConfig.ExportUserDefinedParameterMapping = true;
-
-                    var userDefinedParameterMappingFileName = Path.GetFileName(inputParams.userDefinedParameterMappingFilenameOverride);
-                    exportConfig.ExportUserDefinedParameterMappingFileName = Path.Combine(Directory.GetCurrentDirectory(), userDefinedParameterMappingFileName);
-                }
-
-                ElementId filterViewId = this.GetFilterViewId(doc, inputParams);
-                if (exportConfig.UseActiveViewGeometry)
-                {
-                    exportConfig.ActiveViewId = filterViewId.IntegerValue;
+                    exportConfig.ExportUserDefinedParameterMappingFileName = inputParams.UserDefinedParameterMappingFilenameOverride;
                 }
 
                 if (inputParams.OnlyExportVisibleElementsInView == true) //!<<< Override the `Export only elements visible in view` option on the fly
                 {
                     exportConfig.VisibleElementsOfCurrentView = true;
                 }
+
+                ElementId filterViewId = this.GetFilterViewId(doc, inputParams);
+                if (filterViewId == ElementId.InvalidElementId)
+                    LogTrace($"Warning- No view found with the specified `viewId`: `{inputParams.ViewId}`, so the view-related settings would not take effect, e.g.`IFCExportConfiguration.VisibleElementsOfCurrentView` or `IFCExportConfiguration.UseActiveViewGeometry`.");
+
+                if (exportConfig.UseActiveViewGeometry)
+                {
+                    exportConfig.ActiveViewId = filterViewId.IntegerValue;
+                }
+
+                // Revit IFC addin uses absolute paths for UserDefinedPropertySets and UserDefinedParameterMappingFile, so change the paths to th relative ones.
+                this.FixDependeciesPath(exportConfig);
+
+                // Setup IFCExportOptions for caling Revit IFC export API.
+                var exportOptions = new IFCExportOptions();
                 exportConfig.UpdateOptions(doc, exportOptions, filterViewId);
 
                 LogTrace("Creating export folder...");
@@ -160,7 +182,7 @@ namespace RevitIfcExportor
                     }
                 }
 
-                LogTrace(string.Format("Export Path: {0}", exportPath));
+                LogTrace(string.Format("Export Path: `{0}`", exportPath));
 
                 LogTrace("Starting the export task...");
 
@@ -172,7 +194,6 @@ namespace RevitIfcExportor
                     {
                         trans.Start();
                         result = doc.Export(exportPath, doc.Title, exportOptions);
-                        trans.RollBack();
 
                         if (!result)
                             throw new InvalidOperationException("Failed to export IFC");
@@ -180,6 +201,11 @@ namespace RevitIfcExportor
                     catch (Exception ex)
                     {
                         throw ex;
+                    }
+                    finally
+                    {
+                        // Dsicard changes in IFC export settings. This won't affect the exporting.
+                        trans.RollBack();
                     }
                 }
             }
@@ -192,6 +218,21 @@ namespace RevitIfcExportor
             LogTrace("Exporting completed...");
 
             return true;
+        }
+
+        private void FixDependeciesPath(IFCExportConfiguration configuration)
+        {
+            if (configuration.ExportUserDefinedPsets)
+            {
+                var userDefinedPsetsFileName = Path.GetFileName(configuration.ExportUserDefinedPsetsFileName);
+                configuration.ExportUserDefinedPsetsFileName = Path.Combine(Directory.GetCurrentDirectory(), userDefinedPsetsFileName);
+            }
+
+            if (configuration.ExportUserDefinedParameterMapping)
+            {
+                var userDefinedParameterMappingFileName = Path.GetFileName(configuration.ExportUserDefinedParameterMappingFileName);
+                configuration.ExportUserDefinedParameterMappingFileName = Path.Combine(Directory.GetCurrentDirectory(), userDefinedParameterMappingFileName);
+            }
         }
 
         private ElementId GetFilterViewId(Document document, InputParams inputParams)

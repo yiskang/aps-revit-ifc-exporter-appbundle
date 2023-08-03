@@ -19,7 +19,7 @@ This sample demonstrates how to implement Revit exporter that supports IFC expor
 
 1. **APS Account**: Learn how to create a APS Account, activate subscription and create an app at [this tutorial](https://aps.autodesk.com/tutorials).
 2. **Visual Studio 2019 and later** (Windows).
-3. **Revit 2021 and later**: required to compile changes into the plugin
+3. **Revit 2021 and later**: required to compile changes into the plugin.
 
 ## Design Automation Setup
 
@@ -57,6 +57,11 @@ This sample demonstrates how to implement Revit exporter that supports IFC expor
             "verb": "get",
             "description": "IFC user defined parameter mapping file",
             "localName": "userDefinedParameterMapping.txt"
+        },
+        "userExportSettingsFile": {
+            "verb": "get",
+            "description": "JSON-based User-defined IFC export settings(configuration) file exported from Revit IFC addin",
+            "localName": "userExportSettings.json"
         },
         "inputJson": {
             "verb": "get",
@@ -108,7 +113,7 @@ This sample demonstrates how to implement Revit exporter that supports IFC expor
 }
 ```
 
-**Note.** While providing inuptJSON by inline format, DA will save it as `param.json` after DA starts processing the workitem.
+**Note.** While providing inputJSON by inline format, DA will save it as `param.json` after DA starts processing the workitem.
 
 ### Use userPropertySets and userDefinedParameterMapping filename defined in the IFC export configuration sets, and specify addin settings via concrete JSON file
 
@@ -159,6 +164,7 @@ This sample demonstrates how to implement Revit exporter that supports IFC expor
             "localName": "FmUserDefinedPropSets.txt"
         },
         "inputJson": {
+            "verb": "get",
             "url": "data:application/json,{\"exportSettingName\":\"My IFC Export Setup\", \"userDefinedPropertySetsFilenameOverride\": \"FmUserDefinedPropSets.txt\"}"
         },
         "outputIFC": {
@@ -183,6 +189,7 @@ This sample demonstrates how to implement Revit exporter that supports IFC expor
             "url": "https://developer.api.autodesk.com/oss/v2/apptestbucket/9d3be632-a4fc-457d-bc5d-9e75cefc54b7?region=US"
         },
         "inputJson": {
+            "verb": "get",
             "url": "data:application/json,{\"exportSettingName\":\"My IFC Export Setup\", \"viewId\": \"44745acb-ebea-4fb9-a091-88d28bd746c7-000ea86d\"}"
         },
         "outputIFC": {
@@ -207,6 +214,7 @@ What if the IFC expected setup hasn't checked the `"Export only elements visible
             "url": "https://developer.api.autodesk.com/oss/v2/apptestbucket/9d3be632-a4fc-457d-bc5d-9e75cefc54b7?region=US"
         },
         "inputJson": {
+            "verb": "get",
             "url": "data:application/json,{\"exportSettingName\":\"My IFC Export Setup\", \"viewId\": \"44745acb-ebea-4fb9-a091-88d28bd746c7-000ea86d\", \"onlyExportVisibleElementsInView\": \"true\"}"
         },
         "outputIFC": {
@@ -234,7 +242,7 @@ Here is an example of the available options in the params.json. Only `exportSett
 }
 ```
 
-### Example of userPropertySetsFile for IFC
+#### Example of userPropertySetsFile for IFC
 
 ```
 #
@@ -276,11 +284,114 @@ PropertySet: DAS Parameters I IfcRoof
  FM ID Text
 ```
 
+### Support specifying IFC export settings on the fly without pre-saved ones in RVT file
+
+No more pre-saved IFC export settings in RVT file. Now it supports importing the JSON-based user-defined IFC export settings (configuration) file exported from Revit Desktop on the fly.
+
+```json
+{
+    "activityId": "Autodesk.RevitIfcExportorActivity+dev",
+    "arguments": {
+        "inputFile": {
+            "verb": "get",
+            "url": "https://developer.api.autodesk.com/oss/v2/apptestbucket/9d3be632-a4fc-457d-bc5d-9e75cefc54b7?region=US"
+        },
+        "userExportSettingsFile": {
+            "verb": "get",
+            "url": "https://developer.api.autodesk.com/oss/v2/apptestbucket/d8dd5822-4441-41ac-a5a2-2f8dd1e64c24?region=US"
+        },
+        "inputJson": {
+            "verb": "get",
+            "url": "data:application/json,{\"useExportSettingFile\": true, \"viewId\": \"44745acb-ebea-4fb9-a091-88d28bd746c7-000ea86d\"}"
+        },
+        "outputIFC": {
+            "verb": "put",
+            "url": "https://developer.api.autodesk.com/oss/v2/apptestbucket/9d3be632-a4fc-457d-bc5d-9e75cefc54b7?region=US",
+            "headers": {
+                "Content-Type": "application/octet-stream"
+            }
+        }
+    }
+}
+```
+
+#### Example of userExportSettingsFile exported from Revit Desktop
+
+```json
+{
+  "IFCVersion": 21,
+  "ExchangeRequirement": 3,
+  "IFCFileType": 0,
+  "ActivePhaseId": -1,
+  "SpaceBoundaries": 0,
+  "SplitWallsAndColumns": false,
+  "IncludeSteelElements": true,
+  "ProjectAddress": {
+    "UpdateProjectInformation": false,
+    "AssignAddressToSite": false,
+    "AssignAddressToBuilding": true
+  },
+  "Export2DElements": false,
+  "ExportLinkedFiles": false,
+  "VisibleElementsOfCurrentView": true,
+  "ExportRoomsInView": true,
+  "ExportInternalRevitPropertySets": false,
+  "ExportIFCCommonPropertySets": true,
+  "ExportBaseQuantities": false,
+  "ExportMaterialPsets": false,
+  "ExportSchedulesAsPsets": false,
+  "ExportSpecificSchedules": false,
+  "ExportUserDefinedPsets": false,
+  "ExportUserDefinedPsetsFileName": "C:\\ProgramData\\Autodesk\\ApplicationPlugins\\IFC 2022.bundle\\Contents\\2022\\IFC 2x3 Coordination View 2.0.txt",
+  "ExportUserDefinedParameterMapping": false,
+  "ExportUserDefinedParameterMappingFileName": "",
+  "ClassificationSettings": {
+    "ClassificationName": null,
+    "ClassificationEdition": null,
+    "ClassificationSource": null,
+    "ClassificationEditionDate": "\/Date(-62135596800000)\/",
+    "ClassificationLocation": null,
+    "ClassificationFieldName": null
+  },
+  "TessellationLevelOfDetail": 0.5,
+  "ExportPartsAsBuildingElements": false,
+  "ExportSolidModelRep": false,
+  "UseActiveViewGeometry": false,
+  "UseFamilyAndTypeNameForReference": false,
+  "Use2DRoomBoundaryForVolume": false,
+  "IncludeSiteElevation": false,
+  "StoreIFCGUID": false,
+  "ExportBoundingBox": false,
+  "UseOnlyTriangulation": false,
+  "UseTypeNameOnlyForIfcType": false,
+  "UseVisibleRevitNameAsEntityName": false,
+  "SelectedSite": "Internal",
+  "SitePlacement": 0,
+  "GeoRefCRSName": "",
+  "GeoRefCRSDesc": "",
+  "GeoRefEPSGCode": "",
+  "GeoRefGeodeticDatum": "",
+  "GeoRefMapUnit": "",
+  "ExcludeFilter": "",
+  "COBieCompanyInfo": "",
+  "COBieProjectInfo": "",
+  "Name": "IFC Configuration - DAS IFC2x3 CV 2.0",
+  "ActiveViewId": -1,
+  "IsBuiltIn": false,
+  "IsInSession": false,
+  "FileVersionDescription": "IFC 2x3 Coordination View 2.0"
+}
+```
+
+**Note.** This file can be exported via clicking the `Save selected setup` button on IFC Export Setup dialog
+
+![save-selected-setup.png](./.readme/save-selected-setup.png)
+
 ## Todo
 
 - [ ] Add compile options for multiple Revit versions (e.g. From Revit 2021 to Revit 2023)
 - [ ] Add pre-complied DLLs to repository releases.
-- [ ] Support specifying IFC export settings on the fly without pre-saved ones in RVT file.
+- [x] Support specifying IFC export settings on the fly without pre-saved ones in RVT file.
 - [ ] Support exporting IFC from Revit links
 - [ ] Support site placement related options
 - [ ] Support IFCExchangeRequirements

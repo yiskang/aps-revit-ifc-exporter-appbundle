@@ -37,7 +37,7 @@ namespace BIM.IFC.Export
     /// <summary>
     /// The map to store BuiltIn and Saved configurations.
     /// </summary>
-    public class IFCExportConfigurationsMap
+    public partial class IFCExportConfigurationsMap
     {
         private Dictionary<String, IFCExportConfiguration> m_configurations = new Dictionary<String, IFCExportConfiguration>();
         private Schema m_OldSchema = null;
