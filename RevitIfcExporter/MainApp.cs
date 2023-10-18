@@ -43,7 +43,6 @@ namespace RevitIfcExporter
     {
         public ExternalDBApplicationResult OnStartup(ControlledApplication application)
         {
-            //TryLoadCommonAssembly();
             DesignAutomationBridge.DesignAutomationReadyEvent += HandleDesignAutomationReadyEvent;
             return ExternalDBApplicationResult.Succeeded;
         }
@@ -134,10 +133,10 @@ namespace RevitIfcExporter
 
                 if (!configurationsMap.HasName(inputParams.ExportSettingName))
                     throw new InvalidDataException($"Invalid input ExportSettingName: `{inputParams.ExportSettingName}`");
-              
+
                 var exportConfig = configurationsMap[inputParams.ExportSettingName];
 
-                if(!string.IsNullOrWhiteSpace(inputParams.UserDefinedPropertySetsFilenameOverride))
+                if (!string.IsNullOrWhiteSpace(inputParams.UserDefinedPropertySetsFilenameOverride))
                 {
                     exportConfig.ExportUserDefinedPsets = true;
                     exportConfig.ExportUserDefinedPsetsFileName = inputParams.UserDefinedPropertySetsFilenameOverride;
@@ -156,7 +155,11 @@ namespace RevitIfcExporter
 
                 ElementId filterViewId = this.GetFilterViewId(doc, inputParams);
                 if (filterViewId == ElementId.InvalidElementId)
+                {
+                    exportConfig.UseActiveViewGeometry = false;
+                    exportConfig.VisibleElementsOfCurrentView = false;
                     LogTrace($"!!!Warning!!!- No view found with the specified `viewId`: `{inputParams.ViewId}`, so the view-related settings would not take effect, e.g.`IFCExportConfiguration.VisibleElementsOfCurrentView` or `IFCExportConfiguration.UseActiveViewGeometry`.");
+                }
 
                 if (exportConfig.UseActiveViewGeometry)
                 {
