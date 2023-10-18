@@ -69,6 +69,7 @@
     <Compile Include="IFC\IFCExportConfigurationsMap.partial.cs" />
     <Compile Include="IFC\IFCKnownMVDAndER.cs" />
     <Compile Include="IFC\IFCVersionAttributes.cs" />
+    <Compile Include="IFC\SiteTransformBasis.cs" />
     <Compile Include="InputParams.cs" />
     <Compile Include="MainApp.cs" />
     <Compile Include="IFC\IFCExchangeRequirements.cs" />

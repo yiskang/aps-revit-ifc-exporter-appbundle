@@ -400,8 +400,9 @@ No more pre-saved IFC export settings in RVT file. Now it supports importing the
 - [x] Add pre-complied DLLs to repository releases.
 - [x] Support specifying IFC export settings on the fly without pre-saved ones in RVT file.
 - [ ] Support exporting IFC from Revit links
-- [ ] Support site placement related options
-- [ ] Support IFCExchangeRequirements
+- [x] Support site placement related options
+- [x] Support IFCExchangeRequirements
+- [x] Support IncludeSteelElements
 - [x] Support exporting only elements visible in specified view
 
 ## License

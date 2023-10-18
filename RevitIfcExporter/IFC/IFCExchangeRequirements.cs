@@ -21,6 +21,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Resources;
 using System.Text;
 using System.Threading.Tasks;
 using Autodesk.Revit.DB;
@@ -40,9 +41,16 @@ namespace BIM.IFC.Export
         {
             if (KnownExchangeRequirements.Count == 0)
             {
-                // For IFC4RV
-                IFCVersion ifcVersion = IFCVersion.IFC4RV;
+                // For IFC2x3 CV2.0
+                IFCVersion ifcVersion = IFCVersion.IFC2x3CV2;
                 KnownExchangeRequirements.Add(ifcVersion, new List<KnownERNames>() { KnownERNames.Architecture, KnownERNames.BuildingService, KnownERNames.Structural });
+                List<string> erNameListForUI = new List<string>(KnownExchangeRequirements[ifcVersion].Select(x => x.ToFullLabel()));
+                KnownExchangeRequirementsLocalized.Add(ifcVersion, erNameListForUI);
+
+                // For IFC4RV
+                ifcVersion = IFCVersion.IFC4RV;
+                KnownExchangeRequirements.Add(ifcVersion, new List<KnownERNames>() { KnownERNames.Architecture, KnownERNames.BuildingService, KnownERNames.Structural });
+                KnownExchangeRequirementsLocalized.Add(ifcVersion, erNameListForUI);
             }
         }
 
@@ -66,9 +74,7 @@ namespace BIM.IFC.Export
         public static IList<string> ExchangeRequirementListForUI(IFCVersion ifcVers)
         {
             Initialize();
-            if (KnownExchangeRequirementsLocalized.ContainsKey(ifcVers))
-                return KnownExchangeRequirementsLocalized[ifcVers];
-            return null;
+            return KnownExchangeRequirementsLocalized.FirstOrDefault(x => x.Key == ifcVers).Value;
         }
 
         /// <summary>
@@ -78,12 +84,12 @@ namespace BIM.IFC.Export
         /// <returns>The ER enum</returns>
         public static KnownERNames ParseEREnum(string erName)
         {
-            KnownERNames erEnum = KnownERNames.NotDefined;
-            if (Enum.TryParse(erName, out erEnum))
+            if (Enum.TryParse(erName, out KnownERNames erEnum))
             {
                 return erEnum;
             }
-            return erEnum;
+
+            return KnownERNames.NotDefined;
         }
     }
 }

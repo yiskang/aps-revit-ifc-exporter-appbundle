@@ -77,15 +77,21 @@ namespace BIM.IFC.Export
         {
             // These are the built-in configurations.  Provide a more extensible means of storage.
             // Order of construction: name, version, space boundaries, QTO, split walls, internal sets, 2d elems, boundingBox
-            AddOrReplace(IFCExportConfiguration.CreateBuiltInConfiguration(IFCVersion.IFC2x3CV2, 0, false, false, false, false, false, false, false, false, false));
-            AddOrReplace(IFCExportConfiguration.CreateBuiltInConfiguration(IFCVersion.IFC2x3, 1, false, false, true, false, false, false, true, false, false));
-            AddOrReplace(IFCExportConfiguration.CreateBuiltInConfiguration(IFCVersion.IFCCOBIE, 2, true, true, true, false, false, false, true, true, false));
-            AddOrReplace(IFCExportConfiguration.CreateBuiltInConfiguration(IFCVersion.IFC2x3BFM, 1, true, true, false, false, false, false, true, false, false));
-            AddOrReplace(IFCExportConfiguration.CreateBuiltInConfiguration(IFCVersion.IFC2x2, 1, false, false, true, false, false, false, false, false, false));
-            AddOrReplace(IFCExportConfiguration.CreateBuiltInConfiguration(IFCVersion.IFCBCA, 1, false, true, true, false, false, false, false, false, false));
-            AddOrReplace(IFCExportConfiguration.CreateBuiltInConfiguration(IFCVersion.IFC2x3FM, 1, true, false, false, true, true, false, true, true, false));
-            AddOrReplace(IFCExportConfiguration.CreateBuiltInConfiguration(IFCVersion.IFC4RV, 0, false, false, false, false, false, false, false, false, false));
-            AddOrReplace(IFCExportConfiguration.CreateBuiltInConfiguration(IFCVersion.IFC4DTV, 0, false, false, false, false, false, false, false, false, false));
+            AddOrReplace(IFCExportConfiguration.CreateBuiltInConfiguration(IFCVersion.IFC2x3CV2, 0, false, false, false, false, false, false, false, false, false, includeSteelElements: true));
+            AddOrReplace(IFCExportConfiguration.CreateBuiltInConfiguration(IFCVersion.IFC2x3, 1, false, false, true, false, false, false, true, false, false, includeSteelElements: true));
+            AddOrReplace(IFCExportConfiguration.CreateBuiltInConfiguration(IFCVersion.IFCCOBIE, 2, true, true, true, false, false, false, true, true, false, includeSteelElements: true));
+            AddOrReplace(IFCExportConfiguration.CreateBuiltInConfiguration(IFCVersion.IFC2x3BFM, 1, true, true, false, false, false, false, true, false, false, includeSteelElements: true));
+            AddOrReplace(IFCExportConfiguration.CreateBuiltInConfiguration(IFCVersion.IFC2x2, 1, false, false, true, false, false, false, false, false, false, includeSteelElements: true));
+            AddOrReplace(IFCExportConfiguration.CreateBuiltInConfiguration(IFCVersion.IFC2x3FM, 1, true, false, false, true, true, false, true, true, false, includeSteelElements: true));
+            AddOrReplace(IFCExportConfiguration.CreateBuiltInConfiguration(IFCVersion.IFCBCA, 1, false, true, true, false, false, false, false, false, false, includeSteelElements: true));
+            AddOrReplace(IFCExportConfiguration.CreateBuiltInConfiguration(IFCVersion.IFC4RV, 0, true, false, false, false, false, false, false, false, false, includeSteelElements: true,
+            exchangeRequirement: KnownERNames.Architecture));
+            AddOrReplace(IFCExportConfiguration.CreateBuiltInConfiguration(IFCVersion.IFC4RV, 0, true, false, false, false, false, false, false, false, false, includeSteelElements: true,
+               exchangeRequirement: KnownERNames.Structural));
+            AddOrReplace(IFCExportConfiguration.CreateBuiltInConfiguration(IFCVersion.IFC4RV, 0, true, false, false, false, false, false, false, false, false, includeSteelElements: true,
+               exchangeRequirement: KnownERNames.BuildingService));
+            AddOrReplace(IFCExportConfiguration.CreateBuiltInConfiguration(IFCVersion.IFC4DTV, 0, true, false, false, false, false, false, false, false, false, includeSteelElements: true));
+            AddOrReplace(IFCExportConfiguration.CreateBuiltInConfiguration(IFCVersion.IFCBCA, 1, false, true, true, false, false, false, false, false, false, includeSteelElements: true));
         }
 
         /// <summary>
@@ -108,7 +114,7 @@ namespace BIM.IFC.Export
                             IFCExportConfiguration configuration = IFCExportConfiguration.CreateDefaultConfiguration();
                             configuration.Name = configEntity.Get<String>(s_setupName);
                             configuration.IFCVersion = (IFCVersion)configEntity.Get<int>(s_setupVersion);
-                            //configuration.ExchangeRequirement = IFCExchangeRequirements.ParseEREnum(configEntity.Get<String>(s_exchangeRequirement));
+                            configuration.ExchangeRequirement = IFCExchangeRequirements.ParseEREnum(configEntity.Get<String>(s_exchangeRequirement));
                             configuration.IFCFileType = (IFCFileFormat)configEntity.Get<int>(s_setupFileFormat);
                             configuration.SpaceBoundaries = configEntity.Get<int>(s_setupSpaceBoundaries);
                             configuration.ExportBaseQuantities = configEntity.Get<bool>(s_setupQTO);
@@ -168,18 +174,18 @@ namespace BIM.IFC.Export
                             Field fieldExportRoomsInView = m_OldSchema.GetField(s_setupExportRoomsInView);
                             if (fieldExportRoomsInView != null)
                                 configuration.ExportRoomsInView = configEntity.Get<bool>(s_setupExportRoomsInView);
-                            //Field fieldIncludeSteelElements = m_OldSchema.GetField(s_includeSteelElements);
-                            //if (fieldIncludeSteelElements != null)
-                            //    configuration.IncludeSteelElements = configEntity.Get<bool>(s_includeSteelElements);
+                            Field fieldIncludeSteelElements = m_OldSchema.GetField(s_includeSteelElements);
+                            if (fieldIncludeSteelElements != null)
+                               configuration.IncludeSteelElements = configEntity.Get<bool>(s_includeSteelElements);
                             Field fieldUseOnlyTriangulation = m_OldSchema.GetField(s_useOnlyTriangulation);
                             if (fieldUseOnlyTriangulation != null)
                                 configuration.UseOnlyTriangulation = configEntity.Get<bool>(s_useOnlyTriangulation);
-                            //Field fieldUseTypeNameOnlyForIfcType = m_OldSchema.GetField(s_useTypeNameOnlyForIfcType);
-                            //if (fieldUseTypeNameOnlyForIfcType != null)
-                            //    configuration.UseTypeNameOnlyForIfcType = configEntity.Get<bool>(s_useTypeNameOnlyForIfcType);
-                            //Field fieldUseVisibleRevitNameAsEntityName = m_OldSchema.GetField(s_useVisibleRevitNameAsEntityName);
-                            //if (fieldUseVisibleRevitNameAsEntityName != null)
-                            //    configuration.UseVisibleRevitNameAsEntityName = configEntity.Get<bool>(s_useVisibleRevitNameAsEntityName);
+                            Field fieldUseTypeNameOnlyForIfcType = m_OldSchema.GetField(s_useTypeNameOnlyForIfcType);
+                            if (fieldUseTypeNameOnlyForIfcType != null)
+                                configuration.UseTypeNameOnlyForIfcType = configEntity.Get<bool>(s_useTypeNameOnlyForIfcType);
+                            Field fieldUseVisibleRevitNameAsEntityName = m_OldSchema.GetField(s_useVisibleRevitNameAsEntityName);
+                            if (fieldUseVisibleRevitNameAsEntityName != null)
+                                configuration.UseVisibleRevitNameAsEntityName = configEntity.Get<bool>(s_useVisibleRevitNameAsEntityName);
                             Field fieldTessellationLevelOfDetail = m_OldSchema.GetField(s_setupTessellationLevelOfDetail);
                             if (fieldTessellationLevelOfDetail != null)
                                 configuration.TessellationLevelOfDetail = configEntity.Get<double>(s_setupTessellationLevelOfDetail);
@@ -205,8 +211,8 @@ namespace BIM.IFC.Export
                                 configuration.Name = configMap[s_setupName];
                             if (configMap.ContainsKey(s_setupVersion))
                                 configuration.IFCVersion = (IFCVersion)Enum.Parse(typeof(IFCVersion), configMap[s_setupVersion]);
-                            //if (configMap.ContainsKey(s_exchangeRequirement))
-                            //    configuration.ExchangeRequirement = IFCExchangeRequirements.ParseEREnum(configMap[s_exchangeRequirement]);
+                            if (configMap.ContainsKey(s_exchangeRequirement))
+                               configuration.ExchangeRequirement = IFCExchangeRequirements.ParseEREnum(configMap[s_exchangeRequirement]);
                             if (configMap.ContainsKey(s_setupFileFormat))
                                 configuration.IFCFileType = (IFCFileFormat)Enum.Parse(typeof(IFCFileFormat), configMap[s_setupFileFormat]);
                             if (configMap.ContainsKey(s_setupSpaceBoundaries))
@@ -265,35 +271,35 @@ namespace BIM.IFC.Export
                                 configuration.StoreIFCGUID = bool.Parse(configMap[s_setupStoreIFCGUID]);
                             if (configMap.ContainsKey(s_setupExportRoomsInView))
                                 configuration.ExportRoomsInView = bool.Parse(configMap[s_setupExportRoomsInView]);
-                            //if (configMap.ContainsKey(s_includeSteelElements))
-                            //    configuration.IncludeSteelElements = bool.Parse(configMap[s_includeSteelElements]);
-                            //if (configMap.ContainsKey(s_useTypeNameOnlyForIfcType))
-                            //    configuration.UseTypeNameOnlyForIfcType = bool.Parse(configMap[s_useTypeNameOnlyForIfcType]);
-                            //if (configMap.ContainsKey(s_useVisibleRevitNameAsEntityName))
-                            //    configuration.UseVisibleRevitNameAsEntityName = bool.Parse(configMap[s_useVisibleRevitNameAsEntityName]);
+                            if (configMap.ContainsKey(s_includeSteelElements))
+                               configuration.IncludeSteelElements = bool.Parse(configMap[s_includeSteelElements]);
+                            if (configMap.ContainsKey(s_useTypeNameOnlyForIfcType))
+                                configuration.UseTypeNameOnlyForIfcType = bool.Parse(configMap[s_useTypeNameOnlyForIfcType]);
+                            if (configMap.ContainsKey(s_useVisibleRevitNameAsEntityName))
+                                configuration.UseVisibleRevitNameAsEntityName = bool.Parse(configMap[s_useVisibleRevitNameAsEntityName]);
                             if (configMap.ContainsKey(s_useOnlyTriangulation))
                                 configuration.UseOnlyTriangulation = bool.Parse(configMap[s_useOnlyTriangulation]);
                             if (configMap.ContainsKey(s_setupTessellationLevelOfDetail))
                                 configuration.TessellationLevelOfDetail = double.Parse(configMap[s_setupTessellationLevelOfDetail]);
-                            //if (configMap.ContainsKey(s_setupSitePlacement))
-                            //{
-                            //    SiteTransformBasis siteTrfBasis = SiteTransformBasis.Shared;
-                            //    if (Enum.TryParse(configMap[s_setupSitePlacement], out siteTrfBasis))
-                            //        configuration.SitePlacement = siteTrfBasis;
-                            //}
-                            //// Geo Reference info
-                            //if (configMap.ContainsKey(s_selectedSite))
-                            //    configuration.SelectedSite = configMap[s_selectedSite];
-                            //if (configMap.ContainsKey(s_geoRefCRSName))
-                            //    configuration.GeoRefCRSName = configMap[s_geoRefCRSName];
-                            //if (configMap.ContainsKey(s_geoRefCRSDesc))
-                            //    configuration.GeoRefCRSDesc = configMap[s_geoRefCRSDesc];
-                            //if (configMap.ContainsKey(s_geoRefEPSGCode))
-                            //    configuration.GeoRefEPSGCode = configMap[s_geoRefEPSGCode];
-                            //if (configMap.ContainsKey(s_geoRefGeodeticDatum))
-                            //    configuration.GeoRefGeodeticDatum = configMap[s_geoRefGeodeticDatum];
-                            //if (configMap.ContainsKey(s_geoRefMapUnit))
-                            //    configuration.GeoRefMapUnit = configMap[s_geoRefMapUnit];
+                            if (configMap.ContainsKey(s_setupSitePlacement))
+                            {
+                                SiteTransformBasis siteTrfBasis = SiteTransformBasis.Shared;
+                                if (Enum.TryParse(configMap[s_setupSitePlacement], out siteTrfBasis))
+                                    configuration.SitePlacement = siteTrfBasis;
+                            }
+                            // Geo Reference info
+                            if (configMap.ContainsKey(s_selectedSite))
+                                configuration.SelectedSite = configMap[s_selectedSite];
+                            if (configMap.ContainsKey(s_geoRefCRSName))
+                                configuration.GeoRefCRSName = configMap[s_geoRefCRSName];
+                            if (configMap.ContainsKey(s_geoRefCRSDesc))
+                                configuration.GeoRefCRSDesc = configMap[s_geoRefCRSDesc];
+                            if (configMap.ContainsKey(s_geoRefEPSGCode))
+                                configuration.GeoRefEPSGCode = configMap[s_geoRefEPSGCode];
+                            if (configMap.ContainsKey(s_geoRefGeodeticDatum))
+                                configuration.GeoRefGeodeticDatum = configMap[s_geoRefGeodeticDatum];
+                            if (configMap.ContainsKey(s_geoRefMapUnit))
+                                configuration.GeoRefMapUnit = configMap[s_geoRefMapUnit];
 
                             AddOrReplace(configuration);
                         }
@@ -380,20 +386,21 @@ namespace BIM.IFC.Export
         private const string s_setupStoreIFCGUID = "StoreIFCGUID";
         private const string s_setupActivePhase = "ActivePhase";
         private const string s_setupExportRoomsInView = "ExportRoomsInView";
-        //private const string s_excludeFilter = "ExcludeFilter";
-        //private const string s_setupSitePlacement = "SitePlacement";
-        //private const string s_useTypeNameOnlyForIfcType = "UseTypeNameOnlyForIfcType";
-        //private const string s_useVisibleRevitNameAsEntityName = "UseVisibleRevitNameAsEntityName";
-        //// Used for COBie 2.4
-        //private const string s_cobieCompanyInfo = "COBieCompanyInfo";
-        //private const string s_cobieProjectInfo = "COBieProjectInfo";
-        //private const string s_includeSteelElements = "IncludeSteelElements";
-        //// Geo Reference info
-        //private const string s_geoRefCRSName = "GeoRefCRSName";
-        //private const string s_geoRefCRSDesc = "GeoRefCRSDesc";
-        //private const string s_geoRefEPSGCode = "GeoRefEPSGCode";
-        //private const string s_geoRefGeodeticDatum = "GeoRefGeodeticDatum";
-        //private const string s_geoRefMapUnit = "GeoRefMapUnit";
+        private const string s_excludeFilter = "ExcludeFilter";
+        private const string s_setupSitePlacement = "SitePlacement";
+        private const string s_useTypeNameOnlyForIfcType = "UseTypeNameOnlyForIfcType";
+        private const string s_useVisibleRevitNameAsEntityName = "UseVisibleRevitNameAsEntityName";
+        // Used for COBie 2.4
+        private const string s_cobieCompanyInfo = "COBieCompanyInfo";
+        private const string s_cobieProjectInfo = "COBieProjectInfo";
+        private const string s_includeSteelElements = "IncludeSteelElements";
+        // Geo Reference info
+        private const string s_selectedSite = "SelectedSite";
+        private const string s_geoRefCRSName = "GeoRefCRSName";
+        private const string s_geoRefCRSDesc = "GeoRefCRSDesc";
+        private const string s_geoRefEPSGCode = "GeoRefEPSGCode";
+        private const string s_geoRefGeodeticDatum = "GeoRefGeodeticDatum";
+        private const string s_geoRefMapUnit = "GeoRefMapUnit";
 
         /// <summary>
         /// Updates the setups to save into the document.

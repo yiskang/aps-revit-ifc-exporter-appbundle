@@ -36,7 +36,7 @@ namespace BIM.IFC.Export
                     return "IFC 2x2 Coordination View";
                 case IFCVersion.IFC2x3:
                     return "IFC 2x3 Coordination View";
-                //case IFCVersion.IFCBCA:
+                case IFCVersion.IFCBCA:
                 case IFCVersion.IFC2x3CV2:
                     return "IFC 2x3 Coordination View 2.0";
                 case IFCVersion.IFC4:
@@ -51,8 +51,6 @@ namespace BIM.IFC.Export
                     return "IFC4 Reference Vie";
                 case IFCVersion.IFC2x3BFM:
                     return "IFC 2x3 Basic FM Handover View";
-                case IFCVersion.IFCBCA:
-                    return "IFC2x2 Singapore BCA e-Plan Check";
                 default:
                     return "Unrecognized IFC version";
             }

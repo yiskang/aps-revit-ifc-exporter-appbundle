@@ -31,6 +31,9 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using BIM.IFC.Export;
 using Autodesk.Revit.DB.IFC;
+using System.Reflection;
+using Autodesk.Revit.Creation;
+using Revit.IFC.Common.Extensions;
 
 namespace RevitIfcExporter
 {
@@ -40,6 +43,7 @@ namespace RevitIfcExporter
     {
         public ExternalDBApplicationResult OnStartup(ControlledApplication application)
         {
+            //TryLoadCommonAssembly();
             DesignAutomationBridge.DesignAutomationReadyEvent += HandleDesignAutomationReadyEvent;
             return ExternalDBApplicationResult.Succeeded;
         }
@@ -61,7 +65,7 @@ namespace RevitIfcExporter
         {
             LogTrace("Design Automation Ready event triggered...");
             // Hook up the CustomFailureHandling failure processor.
-            Application.RegisterFailuresProcessor(new ExportIfcFailuresProcessor());
+            Autodesk.Revit.ApplicationServices.Application.RegisterFailuresProcessor(new ExportIfcFailuresProcessor());
 
             e.Succeeded = true;
             e.Succeeded = this.DoExport(e.DesignAutomationData);
@@ -72,7 +76,7 @@ namespace RevitIfcExporter
             if (data == null)
                 return false;
 
-            Application app = data.RevitApp;
+            Autodesk.Revit.ApplicationServices.Application app = data.RevitApp;
             if (app == null)
             {
                 LogTrace("Error occured");
@@ -152,11 +156,15 @@ namespace RevitIfcExporter
 
                 ElementId filterViewId = this.GetFilterViewId(doc, inputParams);
                 if (filterViewId == ElementId.InvalidElementId)
-                    LogTrace($"Warning- No view found with the specified `viewId`: `{inputParams.ViewId}`, so the view-related settings would not take effect, e.g.`IFCExportConfiguration.VisibleElementsOfCurrentView` or `IFCExportConfiguration.UseActiveViewGeometry`.");
+                    LogTrace($"!!!Warning!!!- No view found with the specified `viewId`: `{inputParams.ViewId}`, so the view-related settings would not take effect, e.g.`IFCExportConfiguration.VisibleElementsOfCurrentView` or `IFCExportConfiguration.UseActiveViewGeometry`.");
 
                 if (exportConfig.UseActiveViewGeometry)
                 {
+#if SinceRVT2024
+                    exportConfig.ActiveViewId = filterViewId;
+#else
                     exportConfig.ActiveViewId = filterViewId.IntegerValue;
+#endif
                 }
 
                 // Revit IFC addin uses absolute paths for UserDefinedPropertySets and UserDefinedParameterMappingFile, so change the paths to th relative ones.
@@ -186,13 +194,24 @@ namespace RevitIfcExporter
 
                 LogTrace("Starting the export task...");
 
-                bool result = false;
+                // Call this before the Export IFC transaction starts, as it has its own transaction.
+                IFCClassificationMgr.DeleteObsoleteSchemas(doc);
 
+                // This option should be rarely used, and is only for consistency with old files.  As such, it is set by environment variable only.
+                string use2009GUID = Environment.GetEnvironmentVariable("Assign2009GUIDToBuildingStoriesOnIFCExport");
+                bool use2009BuildingStoreyGUIDs = (use2009GUID != null && use2009GUID == "1");
+
+                bool result = false;
                 using (Transaction trans = new Transaction(doc, "Export IFC"))
                 {
                     try
                     {
                         trans.Start();
+
+                        FailureHandlingOptions failureOptions = trans.GetFailureHandlingOptions();
+                        failureOptions.SetClearAfterRollback(false);
+                        trans.SetFailureHandlingOptions(failureOptions);
+
                         result = doc.Export(exportPath, doc.Title, exportOptions);
 
                         if (!result)
@@ -204,8 +223,11 @@ namespace RevitIfcExporter
                     }
                     finally
                     {
-                        // Dsicard changes in IFC export settings. This won't affect the exporting.
-                        trans.RollBack();
+                        // Roll back the transaction started earlier, unless certain options are set.
+                        if (result && (use2009BuildingStoreyGUIDs || exportConfig.StoreIFCGUID))
+                            trans.Commit();
+                        else
+                            trans.RollBack(); //!<<< Dsicard changes in IFC export settings. This won't affect the exporting.
                     }
                 }
             }
@@ -235,7 +257,7 @@ namespace RevitIfcExporter
             }
         }
 
-        private ElementId GetFilterViewId(Document document, InputParams inputParams)
+        private ElementId GetFilterViewId(Autodesk.Revit.DB.Document document, InputParams inputParams)
         {
             ElementId filterViewId = ElementId.InvalidElementId;
 

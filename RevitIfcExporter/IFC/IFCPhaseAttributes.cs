@@ -50,6 +50,21 @@ namespace BIM.IFC.Export
             return lastPhase.Name;
         }
 
+#if SinceRVT2024
+        /// <summary>
+        /// True if the ElementId represents a valid phase.
+        /// </summary>
+        /// <returns>True if it is valid, false otherwise.</returns>
+        static public bool Validate(long phaseId, Document document)
+        {
+            ElementId checkPhaseId = new ElementId(phaseId);
+            if (checkPhaseId == ElementId.InvalidElementId)
+                return false;
+
+            Element checkPhase = document.GetElement(checkPhaseId);
+            return (checkPhase != null && (checkPhase is Phase));
+        }
+#else
         /// <summary>
         /// True if the ElementId represents a valid phase.
         /// </summary>
@@ -63,6 +78,7 @@ namespace BIM.IFC.Export
             Element checkPhase = document.GetElement(checkPhaseId);
             return (checkPhase != null && (checkPhase is Phase));
         }
+#endif
 
         /// <summary>
         /// Constructs the space boundary levels.

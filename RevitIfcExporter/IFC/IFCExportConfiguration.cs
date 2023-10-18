@@ -45,34 +45,41 @@ namespace BIM.IFC.Export
         /// </summary>
         public IFCVersion IFCVersion { get; set; } = IFCVersion.IFC2x3CV2;
 
-        //private KnownERNames exchangeRequirement = KnownERNames.NotDefined;
+        private KnownERNames exchangeRequirement = KnownERNames.NotDefined;
 
-        //public KnownERNames ExchangeRequirement
-        //{
-        //    get
-        //    {
-        //        return exchangeRequirement;
-        //    }
-        //    set
-        //    {
-        //        if (IFCExchangeRequirements.ExchangeRequirements.ContainsKey(IFCVersion))
-        //        {
-        //            IList<KnownERNames> erList = IFCExchangeRequirements.ExchangeRequirements[IFCVersion];
-        //            if (erList != null && erList.Contains(value))
-        //                exchangeRequirement = value;
-        //        }
-        //    }
-        //}
+        public KnownERNames ExchangeRequirement
+        {
+           get
+           {
+               return exchangeRequirement;
+           }
+           set
+           {
+               if (IFCExchangeRequirements.ExchangeRequirements.ContainsKey(IFCVersion))
+               {
+                   IList<KnownERNames> erList = IFCExchangeRequirements.ExchangeRequirements[IFCVersion];
+                   if (erList != null && erList.Contains(value))
+                       exchangeRequirement = value;
+               }
+           }
+        }
 
         /// <summary>
         /// The IFCFileFormat of the configuration.
         /// </summary>
         public IFCFileFormat IFCFileType { get; set; } = IFCFileFormat.Ifc;
 
+#if SinceRVT2024
+        /// <summary>
+        /// The phase of the document to export.
+        /// </summary>
+        public long ActivePhaseId { get; set; } = ElementId.InvalidElementId.Value;
+#else
         /// <summary>
         /// The phase of the document to export.
         /// </summary>
         public int ActivePhaseId { get; set; } = ElementId.InvalidElementId.IntegerValue;
+#endif
 
         /// <summary>
         /// The level of space boundaries of the configuration.
@@ -99,7 +106,7 @@ namespace BIM.IFC.Export
 
         #endregion  // ProjectAddress
 
-        #endregion  // GeneralTab
+#endregion  // GeneralTab
 
         // Items under Additional Content Tab
         #region AdditionalContentTab
@@ -274,79 +281,87 @@ namespace BIM.IFC.Export
         #endregion  // AdvancedTab
 
         // Items under GeoReference Tab
-        //#region GeoReference
+        #region GeoReference
 
-        ///// <summary>
-        ///// Selected Site name
-        ///// </summary>
-        //public string SelectedSite { get; set; }
+        /// <summary>
+        /// Selected Site name
+        /// </summary>
+        public string SelectedSite { get; set; }
 
-        ///// <summary>
-        ///// The origin of the exported file: either shared coordinates (Site Survey Point), Project Base Point, or internal coordinates.
-        ///// </summary>
-        //public SiteTransformBasis SitePlacement { get; set; } = SiteTransformBasis.Shared;
+        /// <summary>
+        /// The origin of the exported file: either shared coordinates (Site Survey Point), Project Base Point, or internal coordinates.
+        /// </summary>
+        public SiteTransformBasis SitePlacement { get; set; } = SiteTransformBasis.Shared;
 
-        ///// <summary>
-        ///// Projected Coordinate System Name
-        ///// </summary>
-        //public string GeoRefCRSName { get; set; } = "";
+        /// <summary>
+        /// Projected Coordinate System Name
+        /// </summary>
+        public string GeoRefCRSName { get; set; } = "";
 
-        ///// <summary>
-        ///// Projected Coordinate System Desccription
-        ///// </summary>
-        //public string GeoRefCRSDesc { get; set; } = "";
+        /// <summary>
+        /// Projected Coordinate System Desccription
+        /// </summary>
+        public string GeoRefCRSDesc { get; set; } = "";
 
-        ///// <summary>
-        ///// EPSG Code for the Projected CRS
-        ///// </summary>
-        //public string GeoRefEPSGCode { get; set; } = "";
+        /// <summary>
+        /// EPSG Code for the Projected CRS
+        /// </summary>
+        public string GeoRefEPSGCode { get; set; } = "";
 
-        ///// <summary>
-        ///// The geodetic datum of the ProjectedCRS
-        ///// </summary>
-        //public string GeoRefGeodeticDatum { get; set; } = "";
+        /// <summary>
+        /// The geodetic datum of the ProjectedCRS
+        /// </summary>
+        public string GeoRefGeodeticDatum { get; set; } = "";
 
-        ///// <summary>
-        ///// The Map Unit of the ProjectedCRS
-        ///// </summary>
-        //public string GeoRefMapUnit { get; set; } = "";
-        //#endregion // GeoReference
+        /// <summary>
+        /// The Map Unit of the ProjectedCRS
+        /// </summary>
+        public string GeoRefMapUnit { get; set; } = "";
+        #endregion // GeoReference
 
-        // Items under Entities to Export Tab
-        //#region EntitiesToExportTab
+        //Items under Entities to Export Tab
+        #region EntitiesToExportTab
 
-        ///// <summary>
-        ///// Exclude filter string (element list in an arrary, seperated with semicolon ';')
-        ///// </summary>
-        //public string ExcludeFilter { get; set; } = "";
+        /// <summary>
+        /// Exclude filter string (element list in an arrary, seperated with semicolon ';')
+        /// </summary>
+        public string ExcludeFilter { get; set; } = "";
 
-        //#endregion  // EntitiesToExportTab
+        #endregion  // EntitiesToExportTab
 
-        //// Items under COBie Tab
-        //#region COBieTab
+        // Items under COBie Tab
+        #region COBieTab
 
-        ///// <summary>
-        ///// COBie specific company information (from a dedicated tab)
-        ///// </summary>
-        //public string COBieCompanyInfo { get; set; } = "";
+        /// <summary>
+        /// COBie specific company information (from a dedicated tab)
+        /// </summary>
+        public string COBieCompanyInfo { get; set; } = "";
 
-        ///// <summary>
-        ///// COBie specific project information (from a dedicated tab)
-        ///// </summary>
-        //public string COBieProjectInfo { get; set; } = "";
+        /// <summary>
+        /// COBie specific project information (from a dedicated tab)
+        /// </summary>
+        public string COBieProjectInfo { get; set; } = "";
 
-        //#endregion     // COBieTab
+        #endregion     // COBieTab
 
         /// <summary>
         /// The name of the configuration.
         /// </summary>
         public string Name { get; set; } = "";
 
+#if SinceRVT2024
+        /// <summary>
+        /// Id of the active view.
+        /// </summary>
+        [ScriptIgnore]
+        public ElementId ActiveViewId { get; set; } = ElementId.InvalidElementId;
+#else
         /// <summary>
         /// Id of the active view.
         /// </summary>
         [ScriptIgnore]
         public int ActiveViewId { get; set; } = ElementId.InvalidElementId.IntegerValue;
+#endif
 
         private bool m_isBuiltIn = false;
         private bool m_isInSession = false;
@@ -437,9 +452,13 @@ namespace BIM.IFC.Export
             }
 
             configuration.IFCVersion = ifcVersion;
-            //configuration.ExchangeRequirement = exchangeRequirement;
+            configuration.ExchangeRequirement = exchangeRequirement;
             configuration.IFCFileType = IFCFileFormat.Ifc;
+#if SinceRVT2024
+            configuration.ActivePhaseId = ElementId.InvalidElementId.Value;
+#else
             configuration.ActivePhaseId = ElementId.InvalidElementId.IntegerValue;
+#endif
             configuration.SpaceBoundaries = spaceBoundaries;
 
             configuration.SplitWallsAndColumns = splitWalls;
@@ -461,7 +480,7 @@ namespace BIM.IFC.Export
             configuration.ExportBoundingBox = exportBoundingBox;
 
             // Items from the Entities to Export Tab
-            //configuration.ExcludeFilter = excludeFilter;
+            configuration.ExcludeFilter = excludeFilter;
 
             configuration.m_isBuiltIn = true;
             configuration.m_isInSession = false;
@@ -594,6 +613,8 @@ namespace BIM.IFC.Export
             }
 
             options.FilterViewId = VisibleElementsOfCurrentView ? filterViewId : ElementId.InvalidElementId;
+            if (VisibleElementsOfCurrentView)
+                options.AddOption("FilterViewId", options.FilterViewId.ToString());
 
             //string uiVersion = IFCUISettings.GetAssemblyVersion();
             //options.AddOption("AlternateUIVersion", uiVersion);
