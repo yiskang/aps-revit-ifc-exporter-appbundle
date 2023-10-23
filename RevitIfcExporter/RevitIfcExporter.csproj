@@ -67,6 +67,7 @@
     <Compile Include="IFC\ConfigurationComparer.cs" />
     <Compile Include="IFC\IFCEnumExtensions.cs" />
     <Compile Include="IFC\IFCExportConfigurationsMap.partial.cs" />
+    <Compile Include="IFC\IFCExportConfigurationsUtils.cs" />
     <Compile Include="IFC\IFCKnownMVDAndER.cs" />
     <Compile Include="IFC\IFCVersionAttributes.cs" />
     <Compile Include="IFC\SiteTransformBasis.cs" />
