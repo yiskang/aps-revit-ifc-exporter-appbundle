@@ -15,10 +15,48 @@ This sample demonstrates how to implement Revit exporter that supports IFC expor
 
 ### Notice
 
-This sample uses the ported classes `IFCExportConfigurationsMap` and `IFCExportConfiguration` from [v22.5.1.0](https://github.com/Autodesk/revit-ifc/tree/IFC_v22.5.1.0) of [Autodesk revit-ifc open source addin](https://github.com/Autodesk/revit-ifc) to support exporting IFC with the export settings created from Revit Desktop.
+This sample uses the ported classes `IFCExportConfigurationsMap` and `IFCExportConfiguration` from [v23.3.1](https://github.com/Autodesk/revit-ifc/tree/IFC_v23.3.1) of [Autodesk revit-ifc open source addin](https://github.com/Autodesk/revit-ifc) to support exporting IFC with the export settings created from Revit Desktop.
 
 You can the original source code for these two classes under the path [Source
-/IFCExporterUIOverride](https://github.com/Autodesk/revit-ifc/tree/master/Source/IFCExporterUIOverride) of [Autodesk revit-ifc open source addin](https://github.com/Autodesk/revit-ifc) and select Revit version you want by switching the git tags (e.g. IFC_v22.5.1.0).
+/IFCExporterUIOverride](https://github.com/Autodesk/revit-ifc/tree/master/Source/IFCExporterUIOverride) of [Autodesk revit-ifc open source addin](https://github.com/Autodesk/revit-ifc) and select Revit version you want by switching the git tags (e.g. IFC_v23.3.1).
+
+<details>
+    <summary>Pre-steps for using newer or latest Revit IFC exporter from <a href="https://github.com/Autodesk/revit-ifc">Autodesk revit-ifc open source addin</a> on DA.</summary>
+
+1. Downland the version of Revit IFC Addin including the exporter you want to use from the [releases of Autodesk revit-ifc open source addin](https://github.com/Autodesk/revit-ifc/releases) and install it on your local machine. For example, [Release 23.3.1 for Revit 2023](https://github.com/Autodesk/revit-ifc/releases/tag/IFC_v23.3.1.0).
+    - Or download the IFC addin source code from [Autodesk revit-ifc open source addin](https://github.com/Autodesk/revit-ifc), and compile to DLLs.
+2. Copy all files and folders except for `IFCExporterUIOverride.*` from the Revit IFC addin installation location or the `install` folder when compiling from source code of [Autodesk revit-ifc open source addin](https://github.com/Autodesk/revit-ifc). For example, `C:\ProgramData\Autodesk\ApplicationPlugins\IFC 2023 bundle\Contents\2023`.
+3. Put copied files and folders into `RevitIfcExporter.bundle/Contents`. For example, [RevitIfcExporter2023/RevitIfcExporter.bundle/Contents](RevitIfcExporter2023/RevitIfcExporter.bundle/Contents).
+4. Modify the copied `Revit.IFC.addin` under `RevitIfcExporter.bundle/Contents` and replace absolute path with local relative paths. For example, the modified paths between the pair of `<Assembly></Assembly>` below:
+    ```xml
+    <?xml version="1.0" encoding="utf-8"?>
+    <RevitAddIns>
+    <AddIn Type="DBApplication">
+        <Name>BIM IFC Exporter</Name>
+        <Assembly>.\Revit.IFC.Export.dll</Assembly>
+        <!-- ... -->
+    </AddIn>
+    <AddIn Type="DBApplication">
+        <Name>BIM IFC Importer</Name>
+        <Assembly>.\Revit.IFC.Import.dll</Assembly>
+        <!-- ... -->
+    </AddIn>
+    </RevitAddIns>
+    ```
+5. Modify `RevitIfcExporter.bundle/PackageContents.xml`, and add this line to load Revit.IFC.addin we specified in the `RevitIfcExporter.bundle/Contents`. Here is an example of using Revit IFC addin v23.3.1:
+    ```xml
+    <?xml version="1.0" encoding="utf-8" ?>
+    <ApplicationPackage Name="RevitDesignAutomation" Description="Revit IFC Exporter" Author="aps.help@autodesk.com">
+    <CompanyDetails Name="Autodesk, Inc" Url="https://aps.autodesk.com" Email="aps.help@autodesk.com"/>
+    <Components Description="Export Revit RVT to IFC">
+        <RuntimeRequirements SeriesMin="R2023" SeriesMax="R2023" Platform="Revit" OS="Win64"/>
+        <ComponentEntry LoadOnRevitStartup="True" LoadOnCommandInvocation="False" AppDescription="Export Revit RVT to IFC" ModuleName="./Contents/RevitIfcExporter.addin" Version="1.0.0" AppName="RevitIfcExporter"/>
+        <ComponentEntry LoadOnRevitStartup="True" LoadOnCommandInvocation="False" AppName="IFC For Revit 2023" Version="23.3.1" AppDescription="IFC For Revit 2023" ModuleName="./Contents/Revit.IFC.addin"/> <!-- <<<Add this line -->
+    </Components>
+    </ApplicationPackage>
+    ```
+6. Zip the `RevitIfcExporter.bundle` and upload it to DA.
+</details>
 
 # Development Setup
 
