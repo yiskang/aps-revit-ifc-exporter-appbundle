@@ -197,11 +197,35 @@ namespace RevitIfcExporter
 
                 LogTrace("Starting the export task...");
 
-                // Call this before the Export IFC transaction starts, as it has its own transaction.
-                IFCClassificationMgr.DeleteObsoleteSchemas(doc);
+                try
+                {
+                    LogTrace("- Deleteing obsolete IFCClassifications... ");
+                    // Call this before the Export IFC transaction starts, as it has its own transaction.
+                    IFCClassificationMgr.DeleteObsoleteSchemas(doc);
+                    LogTrace("-- DONE... ");
+                }
+                catch (Exception ex)
+                {
+                    this.PrintError(ex);
+                    LogTrace("-- Failed to delete obsolete IFCClassifications, Skip... ");
+                    return false;
+                }
 
                 // This option should be rarely used, and is only for consistency with old files.  As such, it is set by environment variable only.
-                string use2009GUID = Environment.GetEnvironmentVariable("Assign2009GUIDToBuildingStoriesOnIFCExport");
+                string use2009GUID = null;
+                try
+                {
+                    LogTrace("- Getting env variable `Assign2009GUIDToBuildingStoriesOnIFCExport`... ");
+                    use2009GUID = Environment.GetEnvironmentVariable("Assign2009GUIDToBuildingStoriesOnIFCExport");
+                    LogTrace("-- DONE... ");
+                }
+                catch (Exception ex)
+                {
+                    this.PrintError(ex);
+                    LogTrace("-- Failed to get env variable `Assign2009GUIDToBuildingStoriesOnIFCExport`, Skip.... ");
+                    return false;
+                }
+
                 bool use2009BuildingStoreyGUIDs = (use2009GUID != null && use2009GUID == "1");
 
                 bool result = false;
@@ -211,32 +235,48 @@ namespace RevitIfcExporter
                     {
                         trans.Start();
 
+                        LogTrace("- Setting SetFailureHandlingOptions: SetClearAfterRollback=false...");
                         FailureHandlingOptions failureOptions = trans.GetFailureHandlingOptions();
                         failureOptions.SetClearAfterRollback(false);
                         trans.SetFailureHandlingOptions(failureOptions);
+                        LogTrace("-- DONE... ");
 
+                        LogTrace("- Execting the export task...");
                         result = doc.Export(exportPath, doc.Title, exportOptions);
 
                         if (!result)
                             throw new InvalidOperationException("Failed to export IFC");
+
+                        LogTrace("-- DONE... ");
                     }
                     catch (Exception ex)
                     {
+                        LogTrace("- Receieve exception, will print it out after rolling changes back...");
                         throw ex;
                     }
                     finally
                     {
-                        // Roll back the transaction started earlier, unless certain options are set.
+                        
+                        //// Roll back the transaction started earlier, unless certain options are set.
                         if (result && (use2009BuildingStoreyGUIDs || exportConfig.StoreIFCGUID))
+                        {
+                            LogTrace("- Saving the changes made during exporting IFC...");
                             trans.Commit();
+                        }
                         else
+                        {
+                            LogTrace("- Rolling back the changes made during exporting IFC...");
                             trans.RollBack(); //!<<< Dsicard changes in IFC export settings. This won't affect the exporting.
+                        }
+                        LogTrace("-- DONE... ");
                     }
                 }
             }
             catch(Exception ex)
             {
+                LogTrace("- Printing received exception...");
                 this.PrintError(ex);
+                LogTrace("-- DONE... ");
                 return false;
             }
 
