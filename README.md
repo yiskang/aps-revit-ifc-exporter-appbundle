@@ -15,7 +15,7 @@ This sample demonstrates how to implement Revit exporter that supports IFC expor
 
 ### Notice
 
-This sample uses the ported classes `IFCExportConfigurationsMap` and `IFCExportConfiguration` from [v23.3.1](https://github.com/Autodesk/revit-ifc/tree/IFC_v23.3.1) of [Autodesk revit-ifc open source addin](https://github.com/Autodesk/revit-ifc) to support exporting IFC with the export settings created from Revit Desktop.
+This sample uses the ported classes `IFCExportConfigurationsMap` and `IFCExportConfiguration` from [v23.3.1.0](https://github.com/Autodesk/revit-ifc/tree/IFC_v23.3.1.0) of [Autodesk revit-ifc open source addin](https://github.com/Autodesk/revit-ifc) to support exporting IFC with the export settings created from Revit Desktop.
 
 You can the original source code for these two classes under the path [Source
 /IFCExporterUIOverride](https://github.com/Autodesk/revit-ifc/tree/master/Source/IFCExporterUIOverride) of [Autodesk revit-ifc open source addin](https://github.com/Autodesk/revit-ifc) and select Revit version you want by switching the git tags (e.g. IFC_v23.3.1).
