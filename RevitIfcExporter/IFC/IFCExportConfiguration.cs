@@ -31,6 +31,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Revit.IFC.Common.Extensions;
+using Newtonsoft.Json;
 
 namespace BIM.IFC.Export
 {
@@ -354,12 +355,14 @@ namespace BIM.IFC.Export
         /// Id of the active view.
         /// </summary>
         [ScriptIgnore]
+        [JsonIgnore]
         public ElementId ActiveViewId { get; set; } = ElementId.InvalidElementId;
 #else
         /// <summary>
         /// Id of the active view.
         /// </summary>
         [ScriptIgnore]
+        [JsonIgnore]
         public int ActiveViewId { get; set; } = ElementId.InvalidElementId.IntegerValue;
 #endif
 
@@ -371,6 +374,7 @@ namespace BIM.IFC.Export
         /// Whether the configuration is builtIn or not.
         /// </summary>
         [ScriptIgnore]
+        [JsonIgnore]
         public bool IsBuiltIn
         {
             get
@@ -383,6 +387,7 @@ namespace BIM.IFC.Export
         /// Whether the configuration is in-session or not.
         /// </summary>
         [ScriptIgnore]
+        [JsonIgnore]
         public bool IsInSession
         {
             get
@@ -625,6 +630,7 @@ namespace BIM.IFC.Export
         /// Identifies the version selected by the user.
         /// </summary>
         [ScriptIgnore]
+        [JsonIgnore]
         public String FileVersionDescription
         {
             get
