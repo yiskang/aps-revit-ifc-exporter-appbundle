@@ -22,16 +22,19 @@
 
 using System;
 using System.Reflection;
-using System.Web.Script.Serialization;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.IFC;
 
 using Revit.IFC.Common.Enums;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using Revit.IFC.Common.Extensions;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+#if SinceRVT2025
+using Revit.IFC.Export.Utility;
+using Revit.IFC.Export.Toolkit.IFC4x3;
+#endif
 
 namespace BIM.IFC.Export
 {
@@ -46,24 +49,62 @@ namespace BIM.IFC.Export
         /// </summary>
         public IFCVersion IFCVersion { get; set; } = IFCVersion.IFC2x3CV2;
 
-        private KnownERNames exchangeRequirement = KnownERNames.NotDefined;
+        private KnownERNames m_ExchangeRequirement = KnownERNames.NotDefined;
 
         public KnownERNames ExchangeRequirement
         {
            get
            {
-               return exchangeRequirement;
-           }
+               return m_ExchangeRequirement;
+            }
            set
            {
                if (IFCExchangeRequirements.ExchangeRequirements.ContainsKey(IFCVersion))
                {
                    IList<KnownERNames> erList = IFCExchangeRequirements.ExchangeRequirements[IFCVersion];
                    if (erList != null && erList.Contains(value))
-                       exchangeRequirement = value;
+                        m_ExchangeRequirement = value;
                }
            }
         }
+
+#if SinceRVT2025
+        private KnownFacilityTypes m_FacilityType = KnownFacilityTypes.NotDefined;
+
+        public KnownFacilityTypes FacilityType
+        {
+            get
+            {
+                return m_FacilityType;
+            }
+            set
+            {
+                if (IFCFacilityTypes.FacilityTypes.TryGetValue(IFCVersion, out IList<KnownFacilityTypes> facilityTypes))
+                {
+                    if (facilityTypes?.Contains(value) ?? false)
+                    {
+                        m_FacilityType = value;
+                    }
+                }
+            }
+        }
+
+        private Enum m_FacilityPredefinedType = null;
+
+        public Enum FacilityPredefinedType
+        {
+            get
+            {
+                return m_FacilityPredefinedType;
+            }
+            set
+            {
+                m_FacilityPredefinedType = IFCFacilityTypes.ValidatedPredefinedTypeEnum(FacilityType, value);
+            }
+        }
+
+        public string CategoryMapping { get; set; } = null;
+#endif
 
         /// <summary>
         /// The IFCFileFormat of the configuration.
@@ -118,10 +159,18 @@ namespace BIM.IFC.Export
         /// </summary>
         public bool Export2DElements { get; set; } = false;
 
+#if SinceRVT2025
+        /// <summary>
+        /// Specify how we export linked files.
+        /// </summary>
+        [PropertyUpgrader(typeof(ExportLinkedFilesPropertyUpgrader))]
+        public LinkedFileExportAs ExportLinkedFiles { get; set; } = LinkedFileExportAs.DontExport;
+#else       
         /// <summary>
         /// 
         /// </summary>
         public bool ExportLinkedFiles { get; set; } = false;
+#endif
 
         /// <summary>
         /// True to export only the visible elements of the current view (based on filtering and/or element and category hiding). 
@@ -160,6 +209,19 @@ namespace BIM.IFC.Export
         /// </summary>
         public bool ExportBaseQuantities { get; set; } = false;
 
+#if SinceRVT2025
+        /// <summary>
+        /// Whether or not to include ceilings grids for ceilings in the export data. 
+        /// </summary>
+        public bool ExportCeilingGrids { get; set; } = false;
+
+        /// <summary>
+        /// True to include the material property sets. 
+        /// False to exclude them.
+        /// </summary>
+        public bool ExportMaterialPsets { get; set; } = false;
+#endif
+
         /// <summary>
         /// True to allow exports of schedules as custom property sets.
         /// False to exclude them.
@@ -181,6 +243,11 @@ namespace BIM.IFC.Export
         /// The name of the file containing the user defined property sets to be exported.
         /// </summary>
         public string ExportUserDefinedPsetsFileName { get; set; } = "";
+
+        /// <summary>
+        /// Whether or not to include type property to the user defined property sets. 
+        /// </summary>
+        public bool UseTypePropertiesInInstacePSets { get; set; } = false;
 
         /// <summary>
         /// True if the User decides to use the Parameter Mapping Table
@@ -274,12 +341,29 @@ namespace BIM.IFC.Export
         /// </summary>
         public bool UseTypeNameOnlyForIfcType { get; set; } = false;
 
+#if SinceRVT2025
+        /// <summary>
+        /// Don't create a container entity for floors and roofs unless exporting parts
+        /// </summary>
+        public bool ExportHostAsSingleEntity { get; set; } = false;
+
+        /// <summary>
+        /// Use Author field in Project Information to set IfcOwnerHistory LastModified attribute
+        /// </summary>
+        public bool OwnerHistoryLastModified { get; set; } = false;
+
+        /// <summary>
+        /// Use this field in Project Information to set how will be bars in uniform sets exported in IFC.
+        /// </summary>
+        public bool ExportBarsInUniformSetsAsSeparateIFCEntities { get; set; } = false;
+#endif
+
         /// <summary>
         /// Value indicating whether the IFC Entity Name will use visible Revit Name
         /// </summary>
         public bool UseVisibleRevitNameAsEntityName { get; set; } = false;
 
-        #endregion  // AdvancedTab
+#endregion  // AdvancedTab
 
         // Items under GeoReference Tab
         #region GeoReference
@@ -354,14 +438,12 @@ namespace BIM.IFC.Export
         /// <summary>
         /// Id of the active view.
         /// </summary>
-        [ScriptIgnore]
         [JsonIgnore]
         public ElementId ActiveViewId { get; set; } = ElementId.InvalidElementId;
 #else
         /// <summary>
         /// Id of the active view.
         /// </summary>
-        [ScriptIgnore]
         [JsonIgnore]
         public int ActiveViewId { get; set; } = ElementId.InvalidElementId.IntegerValue;
 #endif
@@ -373,28 +455,14 @@ namespace BIM.IFC.Export
         /// <summary>
         /// Whether the configuration is builtIn or not.
         /// </summary>
-        [ScriptIgnore]
         [JsonIgnore]
-        public bool IsBuiltIn
-        {
-            get
-            {
-                return m_isBuiltIn;
-            }
-        }
+        public bool IsBuiltIn { get; private set; } = false;
 
         /// <summary>
         /// Whether the configuration is in-session or not.
         /// </summary>
-        [ScriptIgnore]
         [JsonIgnore]
-        public bool IsInSession
-        {
-            get
-            {
-                return m_isInSession;
-            }
-        }
+        public bool IsInSession { get; private set; } = false;
 
         /// <summary>
         /// Creates a new default configuration.
@@ -416,6 +484,44 @@ namespace BIM.IFC.Export
         {
         }
 
+#if SinceRVT2025
+        /// <summary>
+        /// Creates a builtIn configuration by particular options.
+        /// </summary>
+        /// <param name="name">The configuration name.</param>
+        /// <param name="ifcVersion">The IFCVersion.</param>
+        /// <param name="spaceBoundaries">The space boundary level.</param>
+        /// <param name="exportBaseQuantities">The ExportBaseQuantities.</param>
+        /// <param name="splitWalls">The SplitWallsAndColumns option.</param>
+        /// <param name="internalSets">The ExportInternalRevitPropertySets option.</param>
+        /// <param name="materialPsets">The ExportMaterialPsets option.</param>
+        /// <param name="schedulesAsPSets">The ExportSchedulesAsPsets option.</param>
+        /// <param name="userDefinedPSets">The ExportUserDefinedPsets option.</param>
+        /// <param name="PlanElems2D">The Export2DElements option.</param>
+        /// <param name="exportBoundingBox">The exportBoundingBox option.</param>
+        /// <param name="exportLinkedFiles">The exportLinkedFiles option.</param>
+        /// <returns>The builtIn configuration.</returns>
+        public static IFCExportConfiguration CreateBuiltInConfiguration(IFCVersion ifcVersion,
+                                    int spaceBoundaries,
+                                    bool exportBaseQuantities,
+                                    bool splitWalls,
+                                    bool internalSets,
+                                    bool materialPsets,
+                                    bool schedulesAsPSets,
+                                    bool userDefinedPSets,
+                                    bool useTypePropertiesInInstacePSets,
+                                    bool userDefinedParameterMapping,
+                                    bool PlanElems2D,
+                                    bool exportBoundingBox,
+                                    LinkedFileExportAs exportLinkedFiles,
+                                    string excludeFilter = "",
+                                    bool includeSteelElements = false,
+                                    KnownERNames exchangeRequirement = KnownERNames.NotDefined,
+                                    string customName = null,
+                                    KnownFacilityTypes facilityType = KnownFacilityTypes.NotDefined,
+                                    Enum facilityPredefinedType = null,
+                                    bool exportCeilingGrids = false)
+#else
         /// <summary>
         /// Creates a builtIn configuration by particular options.
         /// </summary>
@@ -446,6 +552,7 @@ namespace BIM.IFC.Export
                                    bool includeSteelElements = false,
                                    KnownERNames exchangeRequirement = KnownERNames.NotDefined,
                                    string customName = null)
+#endif
         {
             IFCExportConfiguration configuration = new IFCExportConfiguration();
 
@@ -458,6 +565,11 @@ namespace BIM.IFC.Export
 
             configuration.IFCVersion = ifcVersion;
             configuration.ExchangeRequirement = exchangeRequirement;
+#if SinceRVT2025
+            configuration.FacilityType = facilityType;
+            configuration.FacilityPredefinedType = facilityPredefinedType;
+#endif
+
             configuration.IFCFileType = IFCFileFormat.Ifc;
 #if SinceRVT2024
             configuration.ActivePhaseId = ElementId.InvalidElementId.Value;
@@ -472,10 +584,16 @@ namespace BIM.IFC.Export
             // Items from Additional Content Tab
             configuration.Export2DElements = PlanElems2D;
             configuration.ExportLinkedFiles = exportLinkedFiles;
+#if SinceRVT2025
+            configuration.ExportCeilingGrids = exportCeilingGrids;
+#endif
 
             // Items from Property Sets Tab
             configuration.ExportInternalRevitPropertySets = internalSets;
             configuration.ExportBaseQuantities = exportBaseQuantities;
+#if SinceRVT2025
+            configuration.ExportMaterialPsets = materialPsets;
+#endif
             configuration.ExportSchedulesAsPsets = schedulesAsPSets;
             configuration.ExportUserDefinedPsets = userDefinedPSets;
             configuration.ExportUserDefinedPsetsFileName = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\" + configuration.Name + @".txt";
@@ -490,8 +608,43 @@ namespace BIM.IFC.Export
             configuration.m_isBuiltIn = true;
             configuration.m_isInSession = false;
 
+#if SinceRVT2025
+            PresetConfigurations(ref configuration);
+#endif
+
             return configuration;
         }
+
+#if SinceRVT2025
+        /// <summary>
+        /// Special present for some built-in configurations should be placed here
+        /// </summary>
+        /// <param name="configuration">the configuration</param>
+        static void PresetConfigurations(ref IFCExportConfiguration configuration)
+        {
+            switch (configuration.IFCVersion)
+            {
+                case IFCVersion.IFCSG:
+                    {
+                        configuration.ExportUserDefinedPsetsFileName = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\IFC-SG Property Mapping Export.txt";
+                        configuration.GeoRefCRSName = "SVY21";
+                        configuration.GeoRefCRSDesc = "SVY21 / Singapore TM";
+                        configuration.GeoRefEPSGCode = "EPSG:3414";
+                        configuration.GeoRefGeodeticDatum = "SVY21";
+                        configuration.GeoRefMapUnit = "Metre";
+                        configuration.VisibleElementsOfCurrentView = true;
+                        configuration.ExportRoomsInView = true;
+                        configuration.UseActiveViewGeometry = true;
+                        configuration.IncludeSiteElevation = true;
+                        configuration.UseOnlyTriangulation = true;
+                        configuration.SitePlacement = SiteTransformBasis.Project;
+                        break;
+                    }
+                default:
+                    break;
+            }
+        }
+#endif
 
         public IFCExportConfiguration Clone()
         {
@@ -577,7 +730,8 @@ namespace BIM.IFC.Export
         /// <param name="filterViewId">The id of the view that will be used to select which elements to export.</param>
         public void UpdateOptions(Document document, IFCExportOptions options, ElementId filterViewId)
         {
-            JavaScriptSerializer ser = new JavaScriptSerializer();
+            options.FilterViewId = VisibleElementsOfCurrentView ? filterViewId : ElementId.InvalidElementId;
+
             foreach (var prop in GetType().GetProperties())
             {
                 switch (prop.Name)
@@ -589,7 +743,7 @@ namespace BIM.IFC.Export
                         options.FileVersion = IFCVersion;
                         break;
                     case "ActivePhaseId":
-                        if (IFCPhaseAttributes.Validate(ActivePhaseId, document))
+                        if (options.FilterViewId == ElementId.InvalidElementId && IFCPhaseAttributes.Validate(ActivePhaseId, document))
                             options.AddOption(prop.Name, ActivePhaseId.ToString());
                         break;
                     case "SpaceBoundaries":
@@ -602,11 +756,15 @@ namespace BIM.IFC.Export
                         options.ExportBaseQuantities = ExportBaseQuantities;
                         break;
                     case "ProjectAddress":
-                        string projectAddrJsonString = ser.Serialize(ProjectAddress);
+                        string projectAddrJsonString = JsonConvert.SerializeObject(ProjectAddress);
                         options.AddOption(prop.Name, projectAddrJsonString);
                         break;
                     case "ClassificationSettings":
-                        string classificationJsonStr = ser.Serialize(ClassificationSettings);
+                        JsonSerializerSettings dateFormatSettings = new JsonSerializerSettings
+                        {
+                            DateFormatHandling = DateFormatHandling.MicrosoftDateFormat
+                        };
+                        string classificationJsonStr = JsonConvert.SerializeObject(ClassificationSettings, dateFormatSettings);
                         options.AddOption(prop.Name, classificationJsonStr);
                         break;
                     default:
@@ -616,20 +774,12 @@ namespace BIM.IFC.Export
                         break;
                 }
             }
-
-            options.FilterViewId = VisibleElementsOfCurrentView ? filterViewId : ElementId.InvalidElementId;
-            if (VisibleElementsOfCurrentView)
-                options.AddOption("FilterViewId", options.FilterViewId.ToString());
-
-            //string uiVersion = IFCUISettings.GetAssemblyVersion();
-            //options.AddOption("AlternateUIVersion", uiVersion);
         }
 
 
         /// <summary>
         /// Identifies the version selected by the user.
         /// </summary>
-        [ScriptIgnore]
         [JsonIgnore]
         public String FileVersionDescription
         {
@@ -658,38 +808,48 @@ namespace BIM.IFC.Export
         /// </summary>
         /// <param name="dictionary">Key, value pairs for each read in property.</param>
         /// <param name="serializer">Json serializer used to load data. </param>
-        public void DeserializeFromJson(IDictionary<string, object> dictionary, JavaScriptSerializer serializer)
+        public void DeserializeFromJson(JObject jsonObject, JsonSerializer serializer)
         {
             Type type = GetType();
 
-            // load in each property from the dictionary. 
-            foreach (var prop in dictionary)
+            foreach (var prop in jsonObject.Properties())
             {
-                string propName = prop.Key;
-                object propValue = prop.Value;
+                string propName = prop.Name;
+                JToken propValue = prop.Value;
 
-                // get the property info
                 PropertyInfo propInfo = type.GetProperty(propName);
 
-                // property removed/renamed..
                 if (propInfo == null)
                     continue;
 
-                // set direct for all the writeable props
-                if (propInfo.CanWrite)
+                if (propInfo.CanWrite && propInfo.GetCustomAttribute(typeof(JsonIgnoreAttribute)) == null)
                 {
-                    propInfo.SetValue(this, serializer.ConvertToType(propValue, propInfo.PropertyType));
+                    if (propInfo.GetCustomAttribute(typeof(PropertyUpgraderAttribute)) is PropertyUpgraderAttribute upgrader)
+                    {
+                        upgrader.Upgrade(this, propInfo, propValue);
+                        continue;
+                    }
+
+                    try
+                    {
+                        propInfo.SetValue(this, propValue.ToObject(propInfo.PropertyType, serializer));
+                    }
+                    catch (Exception)
+                    {
+                        // Handle exceptions that may occur during property deserialization to continue loading user configuration.
+                        // The default value should be set.
+                    }
+
                     continue;
                 }
 
-                // need to set explicit member variables for ready only props.
-                if (propName == "IsBuiltIn")
+                if (propName == nameof(IsBuiltIn))
                 {
-                    m_isBuiltIn = serializer.ConvertToType<bool>(propValue);
+                    m_isBuiltIn = propValue.ToObject<bool>(serializer);
                 }
-                else if (propName == "IsInSession")
+                else if (propName == nameof(IsInSession))
                 {
-                    m_isInSession = serializer.ConvertToType<bool>(propValue);
+                    m_isInSession = propValue.ToObject<bool>(serializer);
                 }
             }
         }
@@ -700,41 +860,132 @@ namespace BIM.IFC.Export
         /// <returns>the serialized json string for the configuration</returns>
         public string SerializeConfigToJson()
         {
-            JavaScriptSerializer js = new JavaScriptSerializer();
-            return js.Serialize(this);
+            JsonSerializerSettings settings = new JsonSerializerSettings
+            {
+                DateFormatHandling = DateFormatHandling.MicrosoftDateFormat
+            };
+            return JsonConvert.SerializeObject(this, settings);
         }
     }
 
     /// <summary>
     /// Converter to handle specialize Deserialization for the Configurations. 
     /// </summary>
-    public class IFCExportConfigurationConverter : JavaScriptConverter
+    public class IFCExportConfigurationConverter : JsonConverter
     {
-
-        public override IEnumerable<Type> SupportedTypes
+        public override bool CanConvert(Type objectType)
         {
-            //Define the ListItemCollection as a supported type.
-            get { return new ReadOnlyCollection<Type>(new List<Type>(new Type[] { typeof(IFCExportConfiguration) })); }
+            return objectType == typeof(IFCExportConfiguration);
         }
 
-        public override IDictionary<string, object> Serialize(object obj, JavaScriptSerializer serializer)
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            // no need to do any special serialization for this object, so don't use for that purpose
-            throw new NotImplementedException();
-        }
-
-        public override object Deserialize(IDictionary<string, object> dictionary, Type type, JavaScriptSerializer serializer)
-        {
-            if (dictionary == null)
-                throw new ArgumentNullException("dictionary");
-
-            if (type != typeof(IFCExportConfiguration))
+            if (reader.TokenType == JsonToken.Null)
                 return null;
+
+            var jsonObject = JObject.Load(reader);
 
             // Create the instance to deserialize into.
             IFCExportConfiguration config = IFCExportConfiguration.CreateDefaultConfiguration();
-            config.DeserializeFromJson(dictionary, serializer);
+            config.DeserializeFromJson(jsonObject, serializer);
             return config;
         }
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            // Since we only need deserialization in this case, writing is not implemented.
+            throw new NotImplementedException();
+        }
     }
+
+    /// <summary>
+    /// An interface for property updaters.
+    /// </summary>
+    public interface IPropertyUpgrader
+    {
+        /// <summary>
+        /// A method to be called by the <see cref="IFCExportConfigurationConverter"/>
+        /// </summary>
+        /// <param name="destination">An instance of the <see cref="IFCExportConfiguration"/>.</param>
+        /// <param name="propertyInfo">A <see cref="PropertyInfo"/> instance to set upgraded value.</param>
+        /// <param name="value">A property value to upgrade.</param>
+        void Upgrade(object destination, PropertyInfo propertyInfo, object value);
+    }
+
+    /// <summary>
+    /// Used to specify <see cref="IPropertyUpgrader"/>.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
+    public sealed class PropertyUpgraderAttribute : Attribute
+    {
+        private Type m_upgraderType;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PropertyUpgraderAttribute"/> class with the specified upgrader
+        /// </summary>
+        /// <param name="upgraderType">An <see cref="IPropertyUpgrader"/> type that should be applied to specific property.</param>
+        public PropertyUpgraderAttribute(Type upgraderType)
+        {
+            m_upgraderType = upgraderType;
+        }
+
+        /// <summary>
+        /// A method to be called by the <see cref="IFCExportConfigurationConverter"/>
+        /// </summary>
+        /// <param name="destination">An instance of the <see cref="IFCExportConfiguration"/>.</param>
+        /// <param name="propertyInfo">A <see cref="PropertyInfo"/> instance to set upgraded value.</param>
+        /// <param name="value">A property value to upgrade.</param>
+        public void Upgrade(object destination, PropertyInfo propertyInfo, object value)
+        {
+            if (Activator.CreateInstance(m_upgraderType) is IPropertyUpgrader upgrader)
+            {
+                upgrader.Upgrade(destination, propertyInfo, value);
+            }
+        }
+    }
+
+#if SinceRVT2025
+    /// <summary>
+    /// Upgrader for the <see cref="IFCExportConfiguration.ExportLinkedFiles"/> property.
+    /// </summary>
+    /// <remarks>
+    /// In Revit 2024 the <see cref="IFCExportConfiguration.ExportLinkedFiles"/> property type changed from bool to the <see cref="Revit.IFC.Export.Utility.LinkedFileExportAs"/> enum,
+    /// therefore, it is necessary to check the value type to convert to <see cref="Revit.IFC.Export.Utility.LinkedFileExportAs"/>.
+    /// </remarks>
+    public class ExportLinkedFilesPropertyUpgrader : IPropertyUpgrader
+    {
+        public void Upgrade(object destination, PropertyInfo propertyInfo, object value)
+        {
+            if (!propertyInfo.CanWrite || !(value is JValue))
+                return;
+
+            JValue jvalue = value as JValue;
+            switch (jvalue.Type)
+            {
+                case JTokenType.Boolean:
+                    {
+                        bool boolValue = (bool)jvalue.Value;
+                        propertyInfo.SetValue(destination, boolValue ? LinkedFileExportAs.ExportAsSeparate : LinkedFileExportAs.DontExport);
+                        break;
+                    }
+                case JTokenType.Integer:
+                    {
+                        try
+                        {
+                            int jvalueAsInt = (int)(long)jvalue.Value;
+                            if (Enum.IsDefined(typeof(LinkedFileExportAs), jvalueAsInt))
+                            {
+                                propertyInfo.SetValue(destination, (LinkedFileExportAs)jvalueAsInt);
+                            }
+                        }
+                        catch
+                        {
+                            // TODO: Give user error.
+                        }
+                        break;
+                    }
+            }
+        }
+    }
+#endif
 }

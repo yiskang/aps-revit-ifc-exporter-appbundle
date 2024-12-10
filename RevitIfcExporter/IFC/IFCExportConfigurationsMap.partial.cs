@@ -30,7 +30,6 @@ using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.IFC;
 using Autodesk.Revit.DB.ExtensibleStorage;
 using Revit.IFC.Common.Enums;
-using System.Web.Script.Serialization;
 using Newtonsoft.Json;
 
 namespace BIM.IFC.Export
@@ -187,12 +186,19 @@ namespace BIM.IFC.Export
                         mapData.Add(s_setupName, configuration.Name);
                         mapData.Add(s_setupVersion, configuration.IFCVersion.ToString());
                         mapData.Add(s_exchangeRequirement, configuration.ExchangeRequirement.ToString());
+#if SinceRVT2025
+                        mapData.Add(s_facilityType, configuration.FacilityType.ToString());
+                        mapData.Add(s_facilityPredefinedType, configuration.FacilityPredefinedType.ToString());
+#endif
                         mapData.Add(s_setupFileFormat, configuration.IFCFileType.ToString());
                         mapData.Add(s_setupSpaceBoundaries, configuration.SpaceBoundaries.ToString());
                         mapData.Add(s_setupQTO, configuration.ExportBaseQuantities.ToString());
                         mapData.Add(s_setupCurrentView, configuration.VisibleElementsOfCurrentView.ToString());
                         mapData.Add(s_splitWallsAndColumns, configuration.SplitWallsAndColumns.ToString());
                         mapData.Add(s_setupExport2D, configuration.Export2DElements.ToString());
+#if SinceRVT2025
+                        mapData.Add(s_setupExportCeilingGrids, configuration.ExportCeilingGrids.ToString());
+#endif
                         mapData.Add(s_setupExportRevitProps, configuration.ExportInternalRevitPropertySets.ToString());
                         mapData.Add(s_setupExportIFCCommonProperty, configuration.ExportIFCCommonPropertySets.ToString());
                         mapData.Add(s_setupUse2DForRoomVolume, configuration.Use2DRoomBoundaryForVolume.ToString());
@@ -202,12 +208,20 @@ namespace BIM.IFC.Export
                         mapData.Add(s_setupExportSpecificSchedules, configuration.ExportSpecificSchedules.ToString());
                         mapData.Add(s_setupExportBoundingBox, configuration.ExportBoundingBox.ToString());
                         mapData.Add(s_setupExportSolidModelRep, configuration.ExportSolidModelRep.ToString());
+#if SinceRVT2025
+                        mapData.Add(s_setupExportMaterialPsets, configuration.ExportMaterialPsets.ToString());
+#endif
                         mapData.Add(s_setupExportSchedulesAsPsets, configuration.ExportSchedulesAsPsets.ToString());
                         mapData.Add(s_setupExportUserDefinedPsets, configuration.ExportUserDefinedPsets.ToString());
                         mapData.Add(s_setupExportUserDefinedPsetsFileName, configuration.ExportUserDefinedPsetsFileName);
                         mapData.Add(s_setupExportUserDefinedParameterMapping, configuration.ExportUserDefinedParameterMapping.ToString());
                         mapData.Add(s_setupExportUserDefinedParameterMappingFileName, configuration.ExportUserDefinedParameterMappingFileName);
+#if SinceRVT2025
+                        var exportLinkedFiles = new IFCLinkedFileExportAs(configuration.ExportLinkedFiles);
+                        mapData.Add(s_setupExportLinkedFiles, exportLinkedFiles.ToString());
+#else
                         mapData.Add(s_setupExportLinkedFiles, configuration.ExportLinkedFiles.ToString());
+#endif
                         mapData.Add(s_setupIncludeSiteElevation, configuration.IncludeSiteElevation.ToString());
                         mapData.Add(s_setupStoreIFCGUID, configuration.StoreIFCGUID.ToString());
                         mapData.Add(s_setupActivePhase, configuration.ActivePhaseId.ToString());
@@ -218,9 +232,17 @@ namespace BIM.IFC.Export
                         mapData.Add(s_useTypeNameOnlyForIfcType, configuration.UseTypeNameOnlyForIfcType.ToString());
                         mapData.Add(s_useVisibleRevitNameAsEntityName, configuration.UseVisibleRevitNameAsEntityName.ToString());
                         mapData.Add(s_setupTessellationLevelOfDetail, configuration.TessellationLevelOfDetail.ToString());
+#if SinceRVT2025
+                        mapData.Add(s_exportHostAsSingleEntity, configuration.ExportHostAsSingleEntity.ToString());
+                        mapData.Add(s_ownerHistoryLastModified, configuration.OwnerHistoryLastModified.ToString());
+                        mapData.Add(s_exportBarsInUniformRebarSetsAsSeparateIFCEntities, configuration.ExportBarsInUniformSetsAsSeparateIFCEntities.ToString());
+                        mapData.Add(s_categoryMapping, configuration.CategoryMapping.ToString());
+#endif
+#if !SinceRVT2025
                         // For COBie v2.4
                         mapData.Add(s_cobieCompanyInfo, configuration.COBieCompanyInfo);
                         mapData.Add(s_cobieProjectInfo, configuration.COBieProjectInfo);
+#endif
                         mapData.Add(s_includeSteelElements, configuration.IncludeSteelElements.ToString());
                         // Geo Reference info
                         mapData.Add(s_geoRefCRSName, string.IsNullOrEmpty(configuration.GeoRefCRSName) ? string.Empty : configuration.GeoRefCRSName);

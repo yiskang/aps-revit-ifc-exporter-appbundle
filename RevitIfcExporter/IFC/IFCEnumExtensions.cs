@@ -18,6 +18,9 @@
 //
 
 using Autodesk.Revit.DB;
+#if SinceRVT2025
+using Revit.IFC.Export.Toolkit.IFC4x3;
+#endif
 using Revit.IFC.Common.Enums;
 
 namespace BIM.IFC.Export
@@ -51,6 +54,14 @@ namespace BIM.IFC.Export
                     return "IFC4 Reference Vie";
                 case IFCVersion.IFC2x3BFM:
                     return "IFC 2x3 Basic FM Handover View";
+#if SinceRVT2023
+                case IFCVersion.IFC4x3:
+                    return "IFC4x3";
+#endif
+#if SinceRVT2024
+                case IFCVersion.IFCSG:
+                    return "IFC-SG Regulatory Requirements View";
+#endif
                 default:
                     return "Unrecognized IFC version";
             }
@@ -95,5 +106,122 @@ namespace BIM.IFC.Export
                     return string.Empty;
             }
         }
+
+#if SinceRVT2025
+
+        /// <summary>
+        /// Get the UI Name for the Facility type. Note that this string may be localized.
+        /// </summary>
+        /// <param name="facilityTypeEnum">The facility type enum value.</param>
+        /// <returns>The localized facility type name.</returns>
+        public static string ToFullLabel(this KnownFacilityTypes facilityTypeEnum)
+        {
+            switch (facilityTypeEnum)
+            {
+                case KnownFacilityTypes.Bridge:
+                    return "Bridge (IfcBridge)";
+                case KnownFacilityTypes.Building:
+                    return "Building (IfcBuilding)";
+                case KnownFacilityTypes.MarineFacility:
+                    return "Marine Facility (IfcMarineFacility)";
+                case KnownFacilityTypes.Railway:
+                    return "Railway (IfcRailway)";
+                case KnownFacilityTypes.Road:
+                    return "Road (IfcRoad)";
+                default:
+                    return string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Get the UI Name for the IfcBridgeTypeEnum. Note that this string may be localized.
+        /// </summary>
+        /// <param name="bridgeTypeEnum">The bridge type enum value.</param>
+        /// <returns>The localized bridge type name.</returns>
+        public static string ToFullLabel(this IFCBridgeType facilityTypeEnum)
+        {
+            switch (facilityTypeEnum)
+            {
+                case IFCBridgeType.ARCHED:
+                    return "Arched (ARCHED)";
+                case IFCBridgeType.CABLE_STAYED:
+                    return "Cable Stayed (CABLESTAYED)";
+                case IFCBridgeType.CANTILEVER:
+                    return "Cantilever (CANTILEVER)";
+                case IFCBridgeType.CULVERT:
+                    return "Culvert (CULVERT)";
+                case IFCBridgeType.FRAMEWORK:
+                    return "Framework (FRAMEWORK)";
+                case IFCBridgeType.GIRDER:
+                    return "Girder (GIRDER)";
+                case IFCBridgeType.NOTDEFINED:
+                    return "Not Defined";
+                case IFCBridgeType.SUSPENSION:
+                    return "Suspension (SUSPENSION)";
+                case IFCBridgeType.TRUSS:
+                    return "Truss (TRUSS)";
+                case IFCBridgeType.USERDEFINED:
+                    return "User Defined";
+                default:
+                    return string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Get the UI Name for the IfcMarineFacilityTypeEnum. Note that this string may be localized.
+        /// </summary>
+        /// <param name="marineFacilityTypeEnum">The marine facility type enum value.</param>
+        /// <returns>The localized marine facility type name.</returns>
+        public static string ToFullLabel(this IFCMarineFacilityType facilityTypeEnum)
+        {
+            switch (facilityTypeEnum)
+            {
+                case IFCMarineFacilityType.BARRIERBEACH:
+                    return "Barrier Beach (BARRIERBEACH)";
+                case IFCMarineFacilityType.BREAKWATER:
+                    return "Breakwater (BREAKWATER)";
+                case IFCMarineFacilityType.CANAL:
+                    return "Canal (CANAL)";
+                case IFCMarineFacilityType.DRYDOCK:
+                    return "Dry Dock (DRYDOCK)";
+                case IFCMarineFacilityType.FLOATINGDOCK:
+                    return "Floating Dock (FLOATINGDOCK)";
+                case IFCMarineFacilityType.HYDROLIFT:
+                    return "Hydrolift (HYDROLIFT)";
+                case IFCMarineFacilityType.JETTY:
+                    return "Jetty (JETTY)";
+                case IFCMarineFacilityType.LAUNCHRECOVERY:
+                    return "Launch Recovery Facility (LAUNCHRECOVERYFACILITY)";
+                case IFCMarineFacilityType.MARINEDEFENCE:
+                    return "Marine Defense (MARINEDEFENCE)";
+                case IFCMarineFacilityType.NAVIGATIONALCHANNEL:
+                    return "Navigational Channel (NAVIGATIONALCHANNEL)";
+                case IFCMarineFacilityType.NOTDEFINED:
+                    return "Not Defined";
+                case IFCMarineFacilityType.PORT:
+                    return "Port (PORT)";
+                case IFCMarineFacilityType.QUAY:
+                    return "Quay (QUAY)";
+                case IFCMarineFacilityType.REVETMENT:
+                    return "Revetment (REVETMENT)";
+                case IFCMarineFacilityType.SHIPLIFT:
+                    return "Shiplift (SHIPLIFT)";
+                case IFCMarineFacilityType.SHIPLOCK:
+                    return "Ship Lock (SHIPLOCK)";
+                case IFCMarineFacilityType.SHIPYARD:
+                    return "Shipyard (SHIPYARD";
+                case IFCMarineFacilityType.SLIPWAY:
+                    return "Slipway (SLIPWAY)";
+                case IFCMarineFacilityType.USERDEFINED:
+                    return "User Defined";
+                case IFCMarineFacilityType.WATERWAY:
+                    return "Waterway (WATERWAY)";
+                case IFCMarineFacilityType.WATERWAYSHIPLIFT:
+                    return "Waterway Shiplift (WATERWAYSHIPLIFT)";
+                default:
+                    return string.Empty;
+            }
+        }
+#endif
     }
 }

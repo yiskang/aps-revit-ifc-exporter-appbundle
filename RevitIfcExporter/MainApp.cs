@@ -44,6 +44,9 @@ namespace RevitIfcExporter
         public ExternalDBApplicationResult OnStartup(ControlledApplication application)
         {
             DesignAutomationBridge.DesignAutomationReadyEvent += HandleDesignAutomationReadyEvent;
+            // Hook up the CustomFailureHandling failure processor.
+            Autodesk.Revit.ApplicationServices.Application.RegisterFailuresProcessor(new OpenDocumentFailuresProcessor());
+
             return ExternalDBApplicationResult.Succeeded;
         }
 
@@ -351,7 +354,7 @@ namespace RevitIfcExporter
         /// <summary>
         /// This will appear on the Design Automation output
         /// </summary>
-        private static void LogTrace(string format, params object[] args)
+        internal static void LogTrace(string format, params object[] args)
         {
 #if DEBUG
             System.Diagnostics.Trace.WriteLine(string.Format(format, args));

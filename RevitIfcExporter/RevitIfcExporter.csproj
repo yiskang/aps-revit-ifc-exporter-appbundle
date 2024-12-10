@@ -63,6 +63,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IFC\IFC4x3Enums.cs" />
+    <Compile Include="IFC\IFCFacilityTypes.cs" />
+    <Compile Include="IFC\IFCLinkedFileExportAs.cs" />
+    <Compile Include="IFC\LinkedFileExportAs.cs" />
+    <Compile Include="OpenDocumentFailuresProcessor.cs" />
     <Compile Include="ExportIfcFailuresProcessor.cs" />
     <Compile Include="IFC\ConfigurationComparer.cs" />
     <Compile Include="IFC\IFCEnumExtensions.cs" />

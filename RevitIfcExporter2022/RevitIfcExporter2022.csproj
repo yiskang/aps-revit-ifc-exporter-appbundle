@@ -71,6 +71,7 @@
     <Compile Include="..\RevitIfcExporter\IFC\IFCVersionAttributes.cs" Link="IFC\IFCVersionAttributes.cs" />
     <Compile Include="..\RevitIfcExporter\InputParams.cs" Link="InputParams.cs" />
     <Compile Include="..\RevitIfcExporter\MainApp.cs" Link="MainApp.cs" />
+    <Compile Include="..\RevitIfcExporter\OpenDocumentFailuresProcessor.cs" Link="OpenDocumentFailuresProcessor.cs" />
     <Compile Include="..\RevitIfcExporter\IFC\IFCExchangeRequirements.cs" Link="IFC\IFCExchangeRequirements.cs" />
     <Compile Include="..\RevitIfcExporter\IFC\IFCExportConfiguration.cs" Link="IFC\IFCExportConfiguration.cs" />
     <Compile Include="..\RevitIfcExporter\IFC\IFCExportConfigurationsMap.cs" Link="IFC\IFCExportConfigurationsMap.cs" />

@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RevitIfcExporter2023", "Rev
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RevitIfcExporter2024", "RevitIfcExporter2024\RevitIfcExporter2024.csproj", "{9E270226-8D2E-4B1A-81A6-07D4E5CDCD7D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RevitIfcExporter2025", "RevitIfcExporter2025\RevitIfcExporter2025.csproj", "{07FDDC8F-2F29-4BAC-8065-0CC7D0156550}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{9E270226-8D2E-4B1A-81A6-07D4E5CDCD7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9E270226-8D2E-4B1A-81A6-07D4E5CDCD7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9E270226-8D2E-4B1A-81A6-07D4E5CDCD7D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{07FDDC8F-2F29-4BAC-8065-0CC7D0156550}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07FDDC8F-2F29-4BAC-8065-0CC7D0156550}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07FDDC8F-2F29-4BAC-8065-0CC7D0156550}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07FDDC8F-2F29-4BAC-8065-0CC7D0156550}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,6 +1,8 @@
-﻿//
+﻿#if SinceRVT2025
+
+//
 // BIM IFC export alternate UI library: this library works with Autodesk(R) Revit(R) to provide an alternate user interface for the export of IFC files from Revit.
-// Copyright (C) 2012  Autodesk, Inc.
+// Copyright (C) 2016  Autodesk, Inc.
 // 
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -16,35 +18,37 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Reflection;
-using System.Linq;
 
-using Autodesk.Revit.DB;
-using Autodesk.Revit.DB.IFC;
-
-using Revit.IFC.Common.Enums;
-using Newtonsoft.Json;
+using Revit.IFC.Export.Utility;
 
 namespace BIM.IFC.Export
 {
-    /// <summary>
-    /// Compare 2 configurations
-    /// </summary>
-    public static class ConfigurationComparer
+    public class IFCLinkedFileExportAs
     {
-        public static bool ConfigurationsAreEqual<T>(T obj1, T obj2)
-        {
-            JsonSerializerSettings settings = new JsonSerializerSettings
-            {
-                DateFormatHandling = DateFormatHandling.MicrosoftDateFormat
-            };
 
-            var obj1Ser = JsonConvert.SerializeObject(obj1, settings);
-            var obj2Ser = JsonConvert.SerializeObject(obj2, settings);
-            return obj1Ser == obj2Ser;
+        public LinkedFileExportAs ExportAs { get; set; }
+
+        public IFCLinkedFileExportAs(LinkedFileExportAs exportAs)
+        {
+            ExportAs = exportAs;
+        }
+
+        public override string ToString()
+        {
+            switch (ExportAs)
+            {
+                case LinkedFileExportAs.DontExport:
+                    return "Do not export";
+                case LinkedFileExportAs.ExportAsSeparate:
+                    return "Export as separate IFCs";
+                case LinkedFileExportAs.ExportSameProject:
+                    return "Export in same IFCProject";
+                case LinkedFileExportAs.ExportSameSite:
+                    return "Export in same IFCSite";
+                default:
+                    return "Do not export";
+            }
         }
     }
 }
+#endif

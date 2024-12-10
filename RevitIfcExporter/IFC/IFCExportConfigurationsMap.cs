@@ -30,7 +30,10 @@ using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.IFC;
 using Autodesk.Revit.DB.ExtensibleStorage;
 using Revit.IFC.Common.Enums;
-using System.Web.Script.Serialization;
+#if SinceRVT2025
+using Revit.IFC.Export.Utility;
+#endif
+using Newtonsoft.Json;
 
 namespace BIM.IFC.Export
 {
@@ -75,6 +78,27 @@ namespace BIM.IFC.Export
         /// </summary>
         public void AddBuiltInConfigurations()
         {
+#if SinceRVT2025
+            LinkedFileExportAs linkedFileExportAs = LinkedFileExportAs.DontExport;
+
+            // These are the built-in configurations.  Provide a more extensible means of storage.
+            // Order of construction: name, version, space boundaries, QTO, split walls, internal sets, 2d elems, boundingBox
+            AddOrReplace(IFCExportConfiguration.CreateBuiltInConfiguration(IFCVersion.IFC2x3CV2, 0, false, false, false, false, false, false, false, false, false, false, linkedFileExportAs, includeSteelElements: true));
+            AddOrReplace(IFCExportConfiguration.CreateBuiltInConfiguration(IFCVersion.IFC2x3, 1, false, false, true, false, false, false, false, false, true, false, linkedFileExportAs, includeSteelElements: true));
+            AddOrReplace(IFCExportConfiguration.CreateBuiltInConfiguration(IFCVersion.IFCCOBIE, 2, true, true, true, false, false, false, false, false, true, true, linkedFileExportAs, includeSteelElements: true));
+            AddOrReplace(IFCExportConfiguration.CreateBuiltInConfiguration(IFCVersion.IFC2x3BFM, 1, true, true, false, false, false, false, false, false, true, false, linkedFileExportAs, includeSteelElements: true));
+            AddOrReplace(IFCExportConfiguration.CreateBuiltInConfiguration(IFCVersion.IFC2x2, 1, false, false, true, false, false, false, false, false, false, false, linkedFileExportAs));
+            AddOrReplace(IFCExportConfiguration.CreateBuiltInConfiguration(IFCVersion.IFC2x3FM, 1, true, false, false, false, true, true, false, false, true, true, linkedFileExportAs, includeSteelElements: true));
+            AddOrReplace(IFCExportConfiguration.CreateBuiltInConfiguration(IFCVersion.IFC4RV, 0, true, false, false, false, false, false, false, false, false, false, linkedFileExportAs, includeSteelElements: true,
+               exchangeRequirement: KnownERNames.Architecture));
+            AddOrReplace(IFCExportConfiguration.CreateBuiltInConfiguration(IFCVersion.IFC4RV, 0, true, false, false, false, false, false, false, false, false, false, linkedFileExportAs, includeSteelElements: true,
+               exchangeRequirement: KnownERNames.Structural));
+            AddOrReplace(IFCExportConfiguration.CreateBuiltInConfiguration(IFCVersion.IFC4RV, 0, true, false, false, false, false, false, false, false, false, false, linkedFileExportAs, includeSteelElements: true,
+               exchangeRequirement: KnownERNames.BuildingService));
+            AddOrReplace(IFCExportConfiguration.CreateBuiltInConfiguration(IFCVersion.IFC4DTV, 0, true, false, false, false, false, false, false, false, false, false, linkedFileExportAs, includeSteelElements: true));
+            AddOrReplace(IFCExportConfiguration.CreateBuiltInConfiguration(IFCVersion.IFC4x3, 0, true, false, false, false, false, false, false, false, false, false, linkedFileExportAs, includeSteelElements: true));
+            AddOrReplace(IFCExportConfiguration.CreateBuiltInConfiguration(IFCVersion.IFCSG, 1, true, true, false, false, false, true, false, false, true, false, linkedFileExportAs, includeSteelElements: true));
+#else
             // These are the built-in configurations.  Provide a more extensible means of storage.
             // Order of construction: name, version, space boundaries, QTO, split walls, internal sets, 2d elems, boundingBox
             AddOrReplace(IFCExportConfiguration.CreateBuiltInConfiguration(IFCVersion.IFC2x3CV2, 0, false, false, false, false, false, false, false, false, false, includeSteelElements: true));
@@ -92,7 +116,28 @@ namespace BIM.IFC.Export
                exchangeRequirement: KnownERNames.BuildingService));
             AddOrReplace(IFCExportConfiguration.CreateBuiltInConfiguration(IFCVersion.IFC4DTV, 0, true, false, false, false, false, false, false, false, false, includeSteelElements: true));
             AddOrReplace(IFCExportConfiguration.CreateBuiltInConfiguration(IFCVersion.IFCBCA, 1, false, true, true, false, false, false, false, false, false, includeSteelElements: true));
+#endif
         }
+
+#if SinceRVT2025
+        private LinkedFileExportAs ParseLinkedFilesAs(string val, Entity configEntity)
+        {
+            if (string.IsNullOrWhiteSpace(val))
+                return LinkedFileExportAs.DontExport;
+
+            if (Enum.TryParse(val, out LinkedFileExportAs newLinkedFileStatus))
+                return newLinkedFileStatus;
+
+            // Used to be a bool; this is the backup.
+            bool oldLinkedFileStatus = false;
+            if (!bool.TryParse(val, out oldLinkedFileStatus))  // m_mapSchema case
+                oldLinkedFileStatus = configEntity.Get<bool>(s_setupExportLinkedFiles); // m_OldSchema case
+
+            return oldLinkedFileStatus ?
+               LinkedFileExportAs.ExportAsSeparate :
+               LinkedFileExportAs.DontExport;
+        }
+#endif
 
         /// <summary>
         /// Adds the saved configuration from document to the map.
@@ -115,12 +160,22 @@ namespace BIM.IFC.Export
                             configuration.Name = configEntity.Get<String>(s_setupName);
                             configuration.IFCVersion = (IFCVersion)configEntity.Get<int>(s_setupVersion);
                             configuration.ExchangeRequirement = IFCExchangeRequirements.ParseEREnum(configEntity.Get<String>(s_exchangeRequirement));
+#if SinceRVT2025
+                            configuration.FacilityType = IFCFacilityTypes.ParseFacilityTypeEnum(configEntity.Get<string>(s_facilityType));
+                            configuration.FacilityPredefinedType = IFCFacilityTypes.ParseFacilityPredefinedTypeEnum(configuration.FacilityType, configEntity.Get<string>(s_facilityPredefinedType));
+#endif
                             configuration.IFCFileType = (IFCFileFormat)configEntity.Get<int>(s_setupFileFormat);
                             configuration.SpaceBoundaries = configEntity.Get<int>(s_setupSpaceBoundaries);
                             configuration.ExportBaseQuantities = configEntity.Get<bool>(s_setupQTO);
                             configuration.SplitWallsAndColumns = configEntity.Get<bool>(s_splitWallsAndColumns);
                             configuration.Export2DElements = configEntity.Get<bool>(s_setupExport2D);
+#if SinceRVT2025
+                            configuration.ExportCeilingGrids = configEntity.Get<bool>(s_setupExportCeilingGrids);
+#endif
                             configuration.ExportInternalRevitPropertySets = configEntity.Get<bool>(s_setupExportRevitProps);
+#if SinceRVT2025
+                            configuration.CategoryMapping = configEntity.Get<string>(s_categoryMapping);
+#endif
                             Field fieldIFCCommonPropertySets = m_OldSchema.GetField(s_setupExportIFCCommonProperty);
                             if (fieldIFCCommonPropertySets != null)
                                 configuration.ExportIFCCommonPropertySets = configEntity.Get<bool>(s_setupExportIFCCommonProperty);
@@ -135,6 +190,11 @@ namespace BIM.IFC.Export
                             Field fieldExportSolidModelRep = m_OldSchema.GetField(s_setupExportSolidModelRep);
                             if (fieldExportSolidModelRep != null)
                                 configuration.ExportSolidModelRep = configEntity.Get<bool>(s_setupExportSolidModelRep);
+#if SinceRVT2025
+                            Field fieldExportMaterialPsets = m_OldSchema.GetField(s_setupExportMaterialPsets);
+                            if (fieldExportMaterialPsets != null)
+                                configuration.ExportMaterialPsets = configEntity.Get<bool>(s_setupExportMaterialPsets);
+#endif
                             Field fieldExportSchedulesAsPsets = m_OldSchema.GetField(s_setupExportSchedulesAsPsets);
                             if (fieldExportSchedulesAsPsets != null)
                                 configuration.ExportSchedulesAsPsets = configEntity.Get<bool>(s_setupExportSchedulesAsPsets);
@@ -148,6 +208,12 @@ namespace BIM.IFC.Export
                                 configuration.ExportUserDefinedPsetsFileName = Path.Combine(Directory.GetCurrentDirectory(), userDefinedPsetsFileName);
                             }
 
+#if SinceRVT2025
+                            Field fieldUseTypePropertiesInInstacePSets = m_OldSchema.GetField(s_setupUseTypePropertiesInInstacePSets);
+                            if (fieldExportUserDefinedPsets != null)
+                                configuration.UseTypePropertiesInInstacePSets = configEntity.Get<bool>(s_setupUseTypePropertiesInInstacePSets);
+#endif
+
                             Field fieldExportUserDefinedParameterMapingTable = m_OldSchema.GetField(s_setupExportUserDefinedParameterMapping);
                             if (fieldExportUserDefinedParameterMapingTable != null)
                                 configuration.ExportUserDefinedParameterMapping = configEntity.Get<bool>(s_setupExportUserDefinedParameterMapping);
@@ -159,9 +225,15 @@ namespace BIM.IFC.Export
                                 configuration.ExportUserDefinedParameterMappingFileName = Path.Combine(Directory.GetCurrentDirectory(), userDefinedParameterMappingFileName);
                             }
 
+#if SinceRVT2025
+                            Field fieldExportLinkedFiles = m_OldSchema.GetField(s_setupExportLinkedFiles);
+                            if (fieldExportLinkedFiles != null)
+                                configuration.ExportLinkedFiles = ParseLinkedFilesAs(s_setupExportLinkedFiles, configEntity);
+#else
                             Field fieldExportLinkedFiles = m_OldSchema.GetField(s_setupExportLinkedFiles);
                             if (fieldExportLinkedFiles != null)
                                 configuration.ExportLinkedFiles = configEntity.Get<bool>(s_setupExportLinkedFiles);
+#endif
                             Field fieldIncludeSiteElevation = m_OldSchema.GetField(s_setupIncludeSiteElevation);
                             if (fieldIncludeSiteElevation != null)
                                 configuration.IncludeSiteElevation = configEntity.Get<bool>(s_setupIncludeSiteElevation);
@@ -189,6 +261,17 @@ namespace BIM.IFC.Export
                             Field fieldTessellationLevelOfDetail = m_OldSchema.GetField(s_setupTessellationLevelOfDetail);
                             if (fieldTessellationLevelOfDetail != null)
                                 configuration.TessellationLevelOfDetail = configEntity.Get<double>(s_setupTessellationLevelOfDetail);
+#if SinceRVT2025
+                            Field fieldExportHostAsSingleEntity = m_OldSchema.GetField(s_exportHostAsSingleEntity);
+                            if (fieldExportHostAsSingleEntity != null)
+                                configuration.ExportHostAsSingleEntity = configEntity.Get<bool>(s_exportHostAsSingleEntity);
+                            Field fieldOwnerHistoryLastModified = m_OldSchema.GetField(s_ownerHistoryLastModified);
+                            if (fieldOwnerHistoryLastModified != null)
+                                configuration.OwnerHistoryLastModified = configEntity.Get<bool>(s_ownerHistoryLastModified);
+                            Field fieldExportBarsInUniformRebarSetsAsSeparateIFCEntitiesd = m_OldSchema.GetField(s_exportBarsInUniformRebarSetsAsSeparateIFCEntities);
+                            if (fieldExportBarsInUniformRebarSetsAsSeparateIFCEntitiesd != null)
+                                configuration.ExportBarsInUniformSetsAsSeparateIFCEntities = configEntity.Get<bool>(s_exportBarsInUniformRebarSetsAsSeparateIFCEntities);
+#endif
 
                             AddOrReplace(configuration);
                         }
@@ -213,6 +296,12 @@ namespace BIM.IFC.Export
                                 configuration.IFCVersion = (IFCVersion)Enum.Parse(typeof(IFCVersion), configMap[s_setupVersion]);
                             if (configMap.ContainsKey(s_exchangeRequirement))
                                configuration.ExchangeRequirement = IFCExchangeRequirements.ParseEREnum(configMap[s_exchangeRequirement]);
+#if SinceRVT2025
+                            if (configMap.ContainsKey(s_facilityType))
+                                configuration.FacilityType = IFCFacilityTypes.ParseFacilityTypeEnum(configMap[s_facilityType]);
+                            if (configMap.ContainsKey(s_facilityPredefinedType))
+                                configuration.FacilityPredefinedType = IFCFacilityTypes.ParseFacilityPredefinedTypeEnum(configuration.FacilityType, configMap[s_facilityPredefinedType]);
+#endif
                             if (configMap.ContainsKey(s_setupFileFormat))
                                 configuration.IFCFileType = (IFCFileFormat)Enum.Parse(typeof(IFCFileFormat), configMap[s_setupFileFormat]);
                             if (configMap.ContainsKey(s_setupSpaceBoundaries))
@@ -227,6 +316,10 @@ namespace BIM.IFC.Export
                                 configuration.SplitWallsAndColumns = bool.Parse(configMap[s_splitWallsAndColumns]);
                             if (configMap.ContainsKey(s_setupExport2D))
                                 configuration.Export2DElements = bool.Parse(configMap[s_setupExport2D]);
+#if SinceRVT2025
+                            if (configMap.ContainsKey(s_setupExportCeilingGrids))
+                                configuration.ExportCeilingGrids = bool.Parse(configMap[s_setupExportCeilingGrids]);
+#endif
                             if (configMap.ContainsKey(s_setupExportRevitProps))
                                 configuration.ExportInternalRevitPropertySets = bool.Parse(configMap[s_setupExportRevitProps]);
                             if (configMap.ContainsKey(s_setupExportIFCCommonProperty))
@@ -245,6 +338,10 @@ namespace BIM.IFC.Export
                                 configuration.ExportBoundingBox = bool.Parse(configMap[s_setupExportBoundingBox]);
                             if (configMap.ContainsKey(s_setupExportSolidModelRep))
                                 configuration.ExportSolidModelRep = bool.Parse(configMap[s_setupExportSolidModelRep]);
+#if SinceRVT2025
+                            if (configMap.ContainsKey(s_setupExportMaterialPsets))
+                                configuration.ExportMaterialPsets = bool.Parse(configMap[s_setupExportMaterialPsets]);
+#endif
                             if (configMap.ContainsKey(s_setupExportSchedulesAsPsets))
                                 configuration.ExportSchedulesAsPsets = bool.Parse(configMap[s_setupExportSchedulesAsPsets]);
                             if (configMap.ContainsKey(s_setupExportUserDefinedPsets))
@@ -263,8 +360,13 @@ namespace BIM.IFC.Export
                                 configuration.ExportUserDefinedParameterMappingFileName = Path.Combine(Directory.GetCurrentDirectory(), userDefinedParameterMappingFileName);
                             }
 
+#if SinceRVT2025
+                            if (configMap.ContainsKey(s_setupExportLinkedFiles))
+                                configuration.ExportLinkedFiles = ParseLinkedFilesAs(configMap[s_setupExportLinkedFiles], configEntity);
+#else
                             if (configMap.ContainsKey(s_setupExportLinkedFiles))
                                 configuration.ExportLinkedFiles = bool.Parse(configMap[s_setupExportLinkedFiles]);
+#endif
                             if (configMap.ContainsKey(s_setupIncludeSiteElevation))
                                 configuration.IncludeSiteElevation = bool.Parse(configMap[s_setupIncludeSiteElevation]);
                             if (configMap.ContainsKey(s_setupStoreIFCGUID))
@@ -281,6 +383,16 @@ namespace BIM.IFC.Export
                                 configuration.UseOnlyTriangulation = bool.Parse(configMap[s_useOnlyTriangulation]);
                             if (configMap.ContainsKey(s_setupTessellationLevelOfDetail))
                                 configuration.TessellationLevelOfDetail = double.Parse(configMap[s_setupTessellationLevelOfDetail]);
+#if SinceRVT2025
+                            if (configMap.ContainsKey(s_exportHostAsSingleEntity))
+                                configuration.ExportHostAsSingleEntity = bool.Parse(configMap[s_exportHostAsSingleEntity]);
+                            if (configMap.ContainsKey(s_ownerHistoryLastModified))
+                                configuration.OwnerHistoryLastModified = bool.Parse(configMap[s_ownerHistoryLastModified]);
+                            if (configMap.ContainsKey(s_exportBarsInUniformRebarSetsAsSeparateIFCEntities))
+                                configuration.ExportBarsInUniformSetsAsSeparateIFCEntities = bool.Parse(configMap[s_exportBarsInUniformRebarSetsAsSeparateIFCEntities]);
+                            if (configMap.ContainsKey(s_categoryMapping))
+                                configuration.CategoryMapping = configMap[s_categoryMapping];
+#endif
                             if (configMap.ContainsKey(s_setupSitePlacement))
                             {
                                 SiteTransformBasis siteTrfBasis = SiteTransformBasis.Shared;
@@ -314,24 +426,31 @@ namespace BIM.IFC.Export
                     {
                         foreach (DataStorage storedSetup in GetSavedConfigurations(m_jsonSchema, document))
                         {
-                            Entity configEntity = storedSetup.GetEntity(m_jsonSchema);
-                            string configData = configEntity.Get<string>(s_configMapField);
-                            JavaScriptSerializer ser = new JavaScriptSerializer();
-                            IFCExportConfiguration configuration = ser.Deserialize<IFCExportConfiguration>(configData);
-
-                            if (!string.IsNullOrWhiteSpace(configuration.ExportUserDefinedPsetsFileName))
+                            try
                             {
-                                var userDefinedPsetsFileName = Path.GetFileName(configuration.ExportUserDefinedPsetsFileName);
-                                configuration.ExportUserDefinedPsetsFileName = Path.Combine(Directory.GetCurrentDirectory(), userDefinedPsetsFileName);
-                            }
+                                Entity configEntity = storedSetup.GetEntity(m_jsonSchema);
+                                string configData = configEntity.Get<string>(s_configMapField);
+                                IFCExportConfiguration configuration = JsonConvert.DeserializeObject<IFCExportConfiguration>(configData, new IFCExportConfigurationConverter());
 
-                            if (!string.IsNullOrWhiteSpace(configuration.ExportUserDefinedParameterMappingFileName))
+                                if (!string.IsNullOrWhiteSpace(configuration.ExportUserDefinedPsetsFileName))
+                                {
+                                    var userDefinedPsetsFileName = Path.GetFileName(configuration.ExportUserDefinedPsetsFileName);
+                                    configuration.ExportUserDefinedPsetsFileName = Path.Combine(Directory.GetCurrentDirectory(), userDefinedPsetsFileName);
+                                }
+
+                                if (!string.IsNullOrWhiteSpace(configuration.ExportUserDefinedParameterMappingFileName))
+                                {
+                                    var userDefinedParameterMappingFileName = Path.GetFileName(configuration.ExportUserDefinedParameterMappingFileName);
+                                    configuration.ExportUserDefinedParameterMappingFileName = Path.Combine(Directory.GetCurrentDirectory(), userDefinedParameterMappingFileName);
+                                }
+
+                                AddOrReplace(configuration);
+                            }
+                            catch (Exception e)
                             {
-                                var userDefinedParameterMappingFileName = Path.GetFileName(configuration.ExportUserDefinedParameterMappingFileName);
-                                configuration.ExportUserDefinedParameterMappingFileName = Path.Combine(Directory.GetCurrentDirectory(), userDefinedParameterMappingFileName);
+                                // don't skip all configurations if an exception occurs for one
+                                //IFCCommandOverrideApplication.TheDocument.Application.WriteJournalComment("IFC error: Cannot read IFCExportConfigurationMap schema", true);
                             }
-
-                            AddOrReplace(configuration);
                         }
                     }
                 }
@@ -359,12 +478,19 @@ namespace BIM.IFC.Export
         private const string s_setupName = "Name";
         private const string s_setupVersion = "Version";
         private const string s_exchangeRequirement = "ExchangeRequirement";
+#if SinceRVT2025
+        private const string s_facilityType = "FacilityType";
+        private const string s_facilityPredefinedType = "FacilityPredefinedType";
+#endif
         private const string s_setupFileFormat = "FileFormat";
         private const string s_setupSpaceBoundaries = "SpaceBoundaryLevel";
         private const string s_setupQTO = "ExportBaseQuantities";
         private const string s_splitWallsAndColumns = "SplitWallsAndColumns";
         private const string s_setupCurrentView = "VisibleElementsInCurrentView";
         private const string s_setupExport2D = "Export2DElements";
+#if SinceRVT2025
+        private const string s_setupExportCeilingGrids = "ExportCeilingGrids";
+#endif
         private const string s_setupExportRevitProps = "ExportInternalRevitPropertySets";
         private const string s_setupExportIFCCommonProperty = "ExportIFCCommonPropertySets";
         private const string s_setupUse2DForRoomVolume = "Use2DBoundariesForRoomVolume";
@@ -374,11 +500,17 @@ namespace BIM.IFC.Export
         private const string s_setupExportSpecificSchedules = "ExportSpecificSchedules";
         private const string s_setupExportBoundingBox = "ExportBoundingBox";
         private const string s_setupExportSolidModelRep = "ExportSolidModelRep";
+#if SinceRVT2025
+        private const string s_setupExportMaterialPsets = "ExportMaterialPsets";
+#endif
         private const string s_setupExportSchedulesAsPsets = "ExportSchedulesAsPsets";
         private const string s_setupExportUserDefinedPsets = "ExportUserDefinedPsets";
         private const string s_setupExportUserDefinedPsetsFileName = "ExportUserDefinedPsetsFileName";
         private const string s_setupExportUserDefinedParameterMapping = "ExportUserDefinedParameterMapping";
         private const string s_setupExportUserDefinedParameterMappingFileName = "ExportUserDefinedParameterMappingFileName";
+#if SinceRVT2025
+        private const string s_setupUseTypePropertiesInInstacePSets = "UseTypePropertiesInInstacePSets";
+#endif
         private const string s_setupExportLinkedFiles = "ExportLinkedFiles";
         private const string s_setupIncludeSiteElevation = "IncludeSiteElevation";
         private const string s_setupTessellationLevelOfDetail = "TessellationLevelOfDetail";
@@ -390,9 +522,18 @@ namespace BIM.IFC.Export
         private const string s_setupSitePlacement = "SitePlacement";
         private const string s_useTypeNameOnlyForIfcType = "UseTypeNameOnlyForIfcType";
         private const string s_useVisibleRevitNameAsEntityName = "UseVisibleRevitNameAsEntityName";
+#if SinceRVT2025
+        private const string s_exportHostAsSingleEntity = "ExportHostAsSingleEntity";
+        private const string s_ownerHistoryLastModified = "OwnerHistoryLastModified";
+        private const string s_exportBarsInUniformRebarSetsAsSeparateIFCEntities = "ExportBarsInUniformRebarSetsAsSeparateIFCEntities";
+        private const string s_categoryMapping = "CategoryMapping";
+#endif
+
+#if !SinceRVT2025
         // Used for COBie 2.4
         private const string s_cobieCompanyInfo = "COBieCompanyInfo";
         private const string s_cobieProjectInfo = "COBieProjectInfo";
+#endif
         private const string s_includeSteelElements = "IncludeSteelElements";
         // Geo Reference info
         private const string s_selectedSite = "SelectedSite";
