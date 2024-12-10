@@ -15,10 +15,10 @@ This sample demonstrates how to implement Revit exporter that supports IFC expor
 
 ### Notice
 
-This sample uses the ported classes `IFCExportConfigurationsMap` and `IFCExportConfiguration` from [v23.3.1.0](https://github.com/Autodesk/revit-ifc/tree/IFC_v23.3.1.0) of [Autodesk revit-ifc open source addin](https://github.com/Autodesk/revit-ifc) to support exporting IFC with the export settings created from Revit Desktop.
+This sample uses the ported classes `IFCExportConfigurationsMap` and `IFCExportConfiguration` from [v25.4.0](https://github.com/Autodesk/revit-ifc/tree/IFC_v25.4.0) of [Autodesk revit-ifc open source addin](https://github.com/Autodesk/revit-ifc) to support exporting IFC with the export settings created from Revit Desktop.
 
 You can the original source code for these two classes under the path [Source
-/IFCExporterUIOverride](https://github.com/Autodesk/revit-ifc/tree/master/Source/IFCExporterUIOverride) of [Autodesk revit-ifc open source addin](https://github.com/Autodesk/revit-ifc) and select Revit version you want by switching the git tags (e.g. IFC_v23.3.1).
+/IFCExporterUIOverride](https://github.com/Autodesk/revit-ifc/tree/master/Source/IFCExporterUIOverride) of [Autodesk revit-ifc open source addin](https://github.com/Autodesk/revit-ifc) and select Revit version you want by switching the git tags (e.g. IFC_v25.4.0).
 
 <details>
     <summary>Pre-steps for using newer or latest Revit IFC exporter from <a href="https://github.com/Autodesk/revit-ifc">Autodesk revit-ifc open source addin</a> on DA.</summary>
@@ -63,7 +63,7 @@ You can the original source code for these two classes under the path [Source
 ## Prerequisites
 
 1. **APS Account**: Learn how to create a APS Account, activate subscription and create an app at [this tutorial](https://aps.autodesk.com/tutorials).
-2. **Visual Studio 2019 and later** (Windows).
+2. **Visual Studio 2022 and later** (Windows).
 3. **Revit 2021 and later**: required to compile changes into the plugin.
 
 ## Design Automation Setup
