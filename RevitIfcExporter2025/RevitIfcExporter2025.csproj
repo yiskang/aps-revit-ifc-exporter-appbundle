@@ -6,10 +6,10 @@
 	<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies><!-- To do "copy local" for referenced local nuget packages into output folder -->
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DefineConstants>$(DefineConstants);SinceRVT2024;SinceRVT2025;SinceRVT2023</DefineConstants>
+    <DefineConstants>$(DefineConstants);SinceRVT2023;SinceRVT2024;SinceRVT2025</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DefineConstants>TRACE;SinceRVT2024</DefineConstants>
+    <DefineConstants>TRACE;SinceRVT2023;SinceRVT2024;SinceRVT2025</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\RevitIfcExporter\ExportIfcFailuresProcessor.cs" Link="ExportIfcFailuresProcessor.cs" />

@@ -76,6 +76,12 @@
     <Compile Include="..\RevitIfcExporter\IFC\IFCExportConfiguration.cs" Link="IFC\IFCExportConfiguration.cs" />
     <Compile Include="..\RevitIfcExporter\IFC\IFCExportConfigurationsMap.cs" Link="IFC\IFCExportConfigurationsMap.cs" />
     <Compile Include="..\RevitIfcExporter\IFC\IFCPhaseAttributes.cs" Link="IFC\IFCPhaseAttributes.cs" />
+    <Compile Include="..\RevitIfcExporter\IFC\IFCExportConfigurationsUtils.cs" Link="IFC\IFCExportConfigurationsUtils.cs" />
+    <Compile Include="..\RevitIfcExporter\IFC\IFCLinkedFileExportAs.cs" Link="IFC\IFCLinkedFileExportAs.cs" />
+    <Compile Include="..\RevitIfcExporter\IFC\LinkedFileExportAs.cs" Link="IFC\LinkedFileExportAs.cs" />
+    <Compile Include="..\RevitIfcExporter\IFC\SiteTransformBasis.cs" Link="IFC\SiteTransformBasis.cs" />
+    <Compile Include="..\RevitIfcExporter\IFC\IFCFacilityTypes.cs" Link="IFC\IFCFacilityTypes.cs" />
+    <Compile Include="..\RevitIfcExporter\IFC\IFC4x3Enums.cs" Link="IFC\IFC4x3Enums.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
